@@ -1,0 +1,87 @@
+<?xml version='1.0' encoding='UTF-8'?>
+
+<beans xmlns='http://www.springframework.org/schema/beans'
+ 	xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xmlns:p='http://www.springframework.org/schema/p' xmlns:context="http://www.springframework.org/schema/context" 
+ 	xsi:schemaLocation='http://www.springframework.org/schema/beans 
+	http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+	http://www.springframework.org/schema/context
+	http://www.springframework.org/schema/context/spring-context-3.0.xsd'>
+	
+	<bean id="propertyConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="locations">
+			<list>
+				<value>file:./dev.properties</value>
+			</list>
+		</property>
+	</bean>
+	<bean id="applicationContextProvder" class="com.malkos.poppin.bootstrap.ApplicationContextProvider"/>
+	
+		<context:component-scan base-package="com.malkos.poppin.integration.services" />
+		<context:component-scan base-package="com.malkos.poppin.integration.persistence" />
+		<context:component-scan base-package="com.malkos.poppin.transport" />
+	
+	<bean id="filesStorageService" class="com.malkos.poppin.integration.services.impl.FilesStorageService" />
+	<bean id="purchaseOrderFlowService" class="com.malkos.poppin.integration.services.impl.PurchaseOrderFlowService" />
+	<bean id="asnMessageFlowService" class="com.malkos.poppin.integration.services.impl.AsnMessageFlowService" />
+	<bean id="invoiceMessageFlowService" class="com.malkos.poppin.integration.services.impl.InvoiceMessageFlowService" />
+	<bean id="poppinDataLoaderService" class="com.malkos.poppin.integration.services.impl.PoppinDataLoaderService" />
+	<bean id="inventoryUpdateFlowService" class="com.malkos.poppin.integration.services.impl.InventoryUpdateFlowService" />
+	<bean id="cancelledOrdersFlowService" class="com.malkos.poppin.integration.services.impl.CancelledOrdersFlowService" />
+	<bean id="remoteFilesOperator" class="com.malkos.poppin.transport.RemoteFilesOperator" />
+	
+	<bean id="persistenceManager" class="com.malkos.poppin.persistence.PersistenceManager" />
+	
+	<import resource="classpath:META-INF/spring/schedullers/schedullers.xml"/>
+	
+	<bean id="globalProperties" class="com.malkos.poppin.bootstrap.GlobalProperties">
+		<property name="spsOutgoingFilesDirectoryName" value="${sps_outgoing_files_dir_name}"/>
+		<property name="spsIncomingFilesDirectoryName" value="${sps_incoming_files_dir_name}"/>
+		<property name="messagesDirectoryRoot" value="${messages_directory_root}"/>
+		<property name="incomingMessagesDirectory" value="${incoming_messages_directory}"/>
+		<property name="outgoingMessagesDirectory" value="${outgoing_messages_directory}"/>
+		<property name="environment" value="${environment}"/>
+		<property name="bnnRetailerNsMappingCustomRecordId" value="${bnn_retailer_ns_mapping_custom_record_id}"/>
+		<property name="notificationEmailFrom" value="${notification_email_from}"/>
+		<property name="notificationEmailTo" value="${notification_emails_to}"/>
+		<property name="notificationEmailSubject" value="${notification_email_subject}"/>
+		<property name="nsUsername" value="${netsuite_config_email}"/>
+	</bean>
+	<bean id="netsuiteService" class="com.malkos.poppin.transport.NetsuiteService" init-method="InitializeNetsuiteService">
+		<property name="NSaccount" value="${netsuite_config_account}"></property>
+		<property name="NSlogin" value="${netsuite_config_email}"></property>
+		<property name="NSpassword" value="${netsuite_config_password}"></property>
+		<property name="NSrole" value="${netsuite_config_role}"></property>
+		<property name="NSwsURL" value="${netsuite_config_url}"></property>
+	</bean>
+	<bean id="netsuiteOperationsManager" class="com.malkos.poppin.transport.NetsuiteOperationsManager" depends-on="netsuiteService">
+		<property name="netsuiteService" ref="netsuiteService"></property>
+	</bean>
+	<bean id="sftpFileManager" class="com.malkos.poppin.transport.SFTPFileManager">
+		<property name="SFTPHost" value="${sftp_config_host}"></property>
+		<property name="SFTPUser" value="${sftp_config_user}"></property>
+		<property name="SFTPPass" value="${sftp_config_password}"></property>
+		<property name="SFTPPort" value="${sftp_config_port}"></property>
+	</bean>
+	<bean id="poppinDataLoader" class="com.malkos.poppin.bootstrap.PoppinDataLoader"/>
+	<bean id="notificationSender" class="com.malkos.poppin.util.NotificationEmailSender"/>
+	<bean id="mailSender" class="org.springframework.mail.javamail.JavaMailSenderImpl">
+		<property name="host" value="${notification_email_server_host}"/>
+  		<property name="port" value="${notification_email_server_port}"/>
+ 		<property name="username" value="${notification_email_server_smtp_user}"/>
+ 		<property name="password" value="${notification_email_server_stmp_password}"/>
+ 		<property name="javaMailProperties">
+            <props>
+                <prop key="mail.transport.protocol">smtp</prop>
+              	<prop key="mail.smtp.auth">true</prop>
+	            <prop key="mail.smtp.starttls.enable">true</prop>
+	            <prop key="mail.debug">false</prop>
+	            </props>
+	        </property>
+	</bean>
+	
+	<!-- <bean id="notificationMailMessage" class="org.springframework.mail.SimpleMailMessage">
+        <property name="from" value="${notification_email_from}"/>
+        <property name="to" value="${notification_emails_to}"/>
+        <property name="subject" value="${notification_email_subject}"/>
+    </bean>   -->  
+</beans>
