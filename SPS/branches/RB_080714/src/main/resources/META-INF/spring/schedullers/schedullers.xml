@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+ 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ 	xmlns:p="http://www.springframework.org/schema/p"
+ 	xmlns:task="http://www.springframework.org/schema/task"
+ 	xmlns:context="http://www.springframework.org/schema/context"
+ 	xsi:schemaLocation="http://www.springframework.org/schema/beans
+ 		http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+ 		http://www.springframework.org/schema/context
+ 		http://www.springframework.org/schema/context/spring-context-3.0.xsd
+ 		http://www.springframework.org/schema/task
+ 		http://www.springframework.org/schema/task/spring-task.xsd">
+		
+	<task:scheduled-tasks scheduler="thePullFilesFromSpsScheduler">
+			<task:scheduled ref="pullFilesFromSpsScheduler" method="processTask" cron="0 0/11 * * * ?"/>
+	</task:scheduled-tasks>
+	<task:scheduler id="thePullFilesFromSpsScheduler" pool-size="1"/>
+	<bean id="pullFilesFromSpsScheduler" class="com.malkos.poppin.schedullers.PullFilesFromSpsScheduller" />
+	
+	<task:scheduled-tasks scheduler="thePurchaseOrderFlowScheduler">
+		<task:scheduled ref="purchaseOrderFlowScheduler" method="processTask" cron="${integration_purchase_orders_scheduling_cron}"/>
+	</task:scheduled-tasks>
+	<task:scheduler id="thePurchaseOrderFlowScheduler" pool-size="1"/>
+	<bean id="purchaseOrderFlowScheduler" class="com.malkos.poppin.schedullers.PurchaseOrderFlowScheduller" />
+	
+	<task:scheduled-tasks scheduler="thePushFilesToSpsScheduler">
+		<task:scheduled ref="pushFilesToSpsScheduler" method="processTask" cron="30 1/11 * * * ?"/>
+	</task:scheduled-tasks>
+	<task:scheduler id="thePushFilesToSpsScheduler" pool-size="1"/>
+	<bean id="pushFilesToSpsScheduler" class="com.malkos.poppin.schedullers.PushFilesToSpsScheduller" />
+	
+	<task:scheduled-tasks scheduler="theAdvanceShippingFlowScheduler">
+		<task:scheduled ref="advanceShippingFlowScheduler" method="processTask" cron="${integration_advance_shipping_scheduling_cron}"/>
+	</task:scheduled-tasks>
+	<task:scheduler id="theAdvanceShippingFlowScheduler" pool-size="1"/>
+	<bean id="advanceShippingFlowScheduler" class="com.malkos.poppin.schedullers.AdvanceShippingFlowScheduller" />
+	
+	<task:scheduled-tasks scheduler="theOrderInvoicesFlowScheduller">
+		<task:scheduled ref="orderInvoicesFlowScheduller" method="processTask" cron="${integration_invoice_scheduling_cron}"/>
+	</task:scheduled-tasks>
+	<task:scheduler id="theOrderInvoicesFlowScheduller" pool-size="1"/>
+	<bean id="orderInvoicesFlowScheduller" class="com.malkos.poppin.schedullers.OrderInvoicesFlowScheduller" />
+	
+	<task:scheduled-tasks scheduler="theClearDiskFlowScheduler">
+			<task:scheduled ref="clearDiskFlowScheduler" method="processTask" cron="0 0 17 * * ?"/>
+	</task:scheduled-tasks>
+	<task:scheduler id="theClearDiskFlowScheduler" pool-size="1"/>
+	<bean id="clearDiskFlowScheduler" class="com.malkos.poppin.schedullers.FreeDiskSpaceScheduller" />
+	
+	<task:scheduled-tasks scheduler="theCancelledOrdersFlowScheduler">
+			<task:scheduled ref="cancelledOrdersFlowScheduler" method="processTask" cron="${integration_cancelled_orders_scheduling_cron}"/>
+	</task:scheduled-tasks>
+	<task:scheduler id="theCancelledOrdersFlowScheduler" pool-size="1"/>
+	<bean id="cancelledOrdersFlowScheduler" class="com.malkos.poppin.schedullers.CancelledOrdersFlowScheduller" />	
+	
+	<task:scheduled-tasks scheduler="theResendEmailFlowScheduler">
+			<task:scheduled ref="resendEmailFlowScheduler" method="processTask" cron="15 0/5 * * * ?"/>
+	</task:scheduled-tasks>
+	<task:scheduler id="theResendEmailFlowScheduler" pool-size="1"/>
+	<bean id="resendEmailFlowScheduler" class="com.malkos.poppin.schedullers.ResendEmailFlowScheduller" />
+</beans>		

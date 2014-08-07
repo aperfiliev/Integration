@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-configuration PUBLIC
+        "-//Hibernate/Hibernate Configuration DTD 3.0//EN"
+        "http://hibernate.sourceforge.net/hibernate-configuration-3.0.dtd">
+
+<hibernate-configuration>
+    <session-factory>
+        <property name="hibernate.connection.driver_class">com.mysql.jdbc.Driver</property>
+        <property name="hibernate.connection.username">root</property>
+        <property name="hibernate.connection.password">root</property>
+        <property name="hibernate.connection.url">jdbc:mysql://localhost:3306/spsintegrationrefactoringdb</property>
+        <property name="hibernate.dialect">org.hibernate.dialect.MySQLInnoDBDialect</property>
+    	<property name="show_sql">false</property> 
+    	<property name="connection.pool_size">10</property>
+    	<property name="hibernate.connection.autoReconnect">true</property>
+    	<property name="dynamic-update">true</property>
+    	<mapping class="com.malkos.poppin.persistence.dao.PurchaseOrderDAO"/>    
+    	<mapping class="com.malkos.poppin.persistence.dao.IncomingMessageDAO"/>
+    	<mapping class="com.malkos.poppin.persistence.dao.ProcessedPurchaseOrdersNumbersDAO"/>
+    	<mapping class="com.malkos.poppin.persistence.dao.LineItemIntegrationIdentifierDAO"/>
+    	<mapping class="com.malkos.poppin.persistence.dao.OutgoingMessageDAO"/>
+    	<mapping class="com.malkos.poppin.persistence.dao.IncomingMessageDAO"/>
+    	<mapping class="com.malkos.poppin.persistence.dao.RetailerDAO"/>
+    	<mapping class="com.malkos.poppin.persistence.dao.ShippingAddressDAO"/>
+    	<mapping class="com.malkos.poppin.persistence.dao.TransactionDAO"/>
+    	<mapping class="com.malkos.poppin.persistence.dao.PackageDAO"/>
+    	<mapping class="com.malkos.poppin.persistence.dao.FulfillmentLineItemDAO"/>
+    	<mapping class="com.malkos.poppin.persistence.dao.NotificationEmailDAO"/>
+    </session-factory>
+</hibernate-configuration>
