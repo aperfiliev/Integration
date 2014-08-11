@@ -2,29 +2,19 @@ package com.malkos.poppin.entities;
 
 import java.lang.reflect.Method;
 
-public class InventoryPojo {
-	private String vendorSKU;
-	private String qtyonhand;
+public abstract class InventoryPojo {
+	private String vendorSKU;	
 	private String available;
 	private String UPC;
 	private String description;
-/*
-	private String nextAvailableDate;
-	private String nextAvailableQty;
-	private String discontinuedDate;
-	*/
+	private String internalId;
+	
 	public String getVendorSKU() {
 		return vendorSKU;
 	}
 	public void setVendorSKU(String vendorSKU) {
 		this.vendorSKU = vendorSKU;
-	}
-	public String getQtyonhand() {
-		return qtyonhand;
-	}
-	public void setQtyonhand(String qtyonhand) {
-		this.qtyonhand = qtyonhand;
-	}
+	}	
 	public String getAvailable() {
 		return available;
 	}
@@ -43,26 +33,9 @@ public class InventoryPojo {
 	public void setDescription(String description) {
 		this.description = description;
 	}
-/*
-	public String getNextAvailableDate() {
-		return nextAvailableDate;
-	}
-	public void setNextAvailableDate(String nextAvailableDate) {
-		this.nextAvailableDate = nextAvailableDate;
-	}
-	public String getNextAvailableQty() {
-		return nextAvailableQty;
-	}
-	public void setNextAvailableQty(String nextAvailableQty) {
-		this.nextAvailableQty = nextAvailableQty;
-	}
-	public String getDiscontinuedDate() {
-		return discontinuedDate;
-	}
-	public void setDiscontinuedDate(String discontinuedDate) {
-		this.discontinuedDate = discontinuedDate;
-	}
-*/
+
+	public abstract double getQtyAvailable();
+	
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
@@ -82,6 +55,12 @@ public class InventoryPojo {
 			System.err.println(e);
 		}
 		return sb.toString();
+	}
+	public String getInternalId() {
+		return internalId;
+	}
+	public void setInternalId(String internalId) {
+		this.internalId = internalId;
 	}
 
 }

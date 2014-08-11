@@ -9,6 +9,7 @@ import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -17,6 +18,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TimeZone;
+import java.util.Map.Entry;
 
 import javassist.expr.Instanceof;
 
@@ -39,7 +41,11 @@ import com.malkos.poppin.bootstrap.GlobalProperties;
 import com.malkos.poppin.bootstrap.GlobalPropertiesProvider;
 import com.malkos.poppin.entities.CHIntegrationError;
 import com.malkos.poppin.entities.CustomerShppingAddressPojo;
+import com.malkos.poppin.entities.InventoryItemPojo;
+import com.malkos.poppin.entities.InventoryKitPojo;
+import com.malkos.poppin.entities.InventoryKitSubItemPojo;
 import com.malkos.poppin.entities.InventoryPojo;
+import com.malkos.poppin.entities.LocationQuantitiesAvailiable;
 import com.malkos.poppin.entities.NSRrequestDetails;
 import com.malkos.poppin.entities.OrderItemPojo;
 import com.malkos.poppin.entities.PurchaseOrderPojo;
@@ -73,6 +79,7 @@ import com.netsuite.webservices.platform.common_2012_1.LocationSearchBasic;
 import com.netsuite.webservices.platform.common_2012_1.TransactionSearchBasic;
 import com.netsuite.webservices.platform.common_2012_1.TransactionSearchRowBasic;
 import com.netsuite.webservices.platform.common_2012_1.types.Country;
+import com.netsuite.webservices.platform.common_2012_1.LocationSearchRowBasic;
 import com.netsuite.webservices.platform.core_2012_1.BooleanCustomFieldRef;
 import com.netsuite.webservices.platform.core_2012_1.CustomFieldList;
 import com.netsuite.webservices.platform.core_2012_1.CustomFieldRef;
@@ -106,6 +113,7 @@ import com.netsuite.webservices.platform.core_2012_1.types.SearchTextNumberField
 import com.netsuite.webservices.platform.core_2012_1.SearchBooleanField;
 import com.netsuite.webservices.platform.core_2012_1.SearchColumnEnumSelectField;
 import com.netsuite.webservices.platform.core_2012_1.SearchColumnTextNumberField;
+import com.netsuite.webservices.platform.core_2012_1.SearchColumnBooleanField;
 import com.netsuite.webservices.platform.faults_2012_1.ExceededRecordCountFault;
 import com.netsuite.webservices.platform.faults_2012_1.ExceededRequestLimitFault;
 import com.netsuite.webservices.platform.faults_2012_1.ExceededRequestSizeFault;
@@ -1274,7 +1282,7 @@ public class NetsuiteOperationsManager extends NetSuiteClient implements INetsui
 		return result;
 	}
 	
-	@Override
+	/*@Override
 	public List<InventoryPojo> getInventoryFromPoppinAdvanced(Map<String,String> VendorSkuToModelNumMap) throws NetsuiteNullResponseException, NetsuiteOperationException {
 		List<InventoryPojo> result = new ArrayList<InventoryPojo>();
 		
@@ -1432,7 +1440,7 @@ public class NetsuiteOperationsManager extends NetSuiteClient implements INetsui
 			} while (searchResult.getPageIndex() < searchResult.getTotalPages());
 		
 		return result;
-	}
+	}*/
 
 	@Override
 	public List<SalesOrder> getBilledSalesOrdersFromPoppinAdvanced(List<String> poIds) throws /*NetsuiteNullResponseException,*/ NetsuiteOperationException {
@@ -1647,352 +1655,103 @@ public class NetsuiteOperationsManager extends NetSuiteClient implements INetsui
 		
 		return soList;
 	}
-
 	
-	//service code below ...
-	/*@Override
-	public void retrieveInventoryInternalIdFromPoppin(List<VendorSkuToModelNumMapDAO> inventoryDAOs) {
-		int counter = 0;
-		for (VendorSkuToModelNumMapDAO inventoryDAO:inventoryDAOs){
-			counter++;
-			System.out.println("Retrieving inventory #"+counter);
-			ItemSearchAdvanced itemAdv = new ItemSearchAdvanced();			
-			ItemSearchBasic itembasicCriteria = new ItemSearchBasic();
-			ItemSearch isCriteria = new ItemSearch();		
-			isCriteria.setBasic(itembasicCriteria);	
-			//itembasicCriteria.setItemId(new SearchStringField("846680017828", SearchStringFieldOperator.is));
-			itembasicCriteria.setItemId(new SearchStringField(String.valueOf(inventoryDAO.getVendorSku()), SearchStringFieldOperator.is));
-			//itembasicCriteria.setType(new SearchEnumMultiSelectField(new String[] {"_inventoryItem","_kitItem"}, SearchEnumMultiSelectFieldOperator.anyOf));
-			
-			ItemSearchRow itemRow = new ItemSearchRow();
-			ItemSearchRowBasic itemRowBasic = new ItemSearchRowBasic();
-			itemRowBasic.setInternalId(new SearchColumnSelectField[]{new SearchColumnSelectField()});
-			itemRow.setBasic(itemRowBasic);
-			
-			itemAdv.setCriteria(isCriteria);
-			itemAdv.setColumns(itemRow);
-			SearchResult result = null;		
-			try {
-				prepeareNSBindingStub();
-				result = getNetSuiteStub().search(itemAdv);
-			} catch (Exception e) {
-				e.printStackTrace();
-			}	
-			
-			try {
-				if (result.getStatus().isIsSuccess()&&result.getTotalRecords()==1){
-					SearchRowList rowList = result.getSearchRowList();
-					ItemSearchRow itemRowResult = (ItemSearchRow) rowList.getSearchRow()[0];
-					inventoryDAO.setItemInternalId(itemRowResult.getBasic().getInternalId()[0].getSearchValue().getInternalId());
-				}
-			} catch (Exception e){
-				System.out.println("itemSKU = '"+inventoryDAO.getVendorSku()+"' error");
-			}			
+	public Collection<InventoryPojo> getInventoryFromPoppinUpdated(List<VendorSkuToModelNumMapDAO> lineItemDAOList) throws NetsuiteOperationException{
+		SearchResult result= null;		
+		List<SearchRowList> searchRowListList = new ArrayList<SearchRowList>();
+		Map<String,VendorSkuToModelNumMapDAO> internalIdtoLineItemDAOMap = new HashMap<>();			
+		for (VendorSkuToModelNumMapDAO lineItemDAO:lineItemDAOList){
+			internalIdtoLineItemDAOMap.put(lineItemDAO.getItemInternalId(), lineItemDAO);			
 		}		
-	}*/
-
-	@Override
-	public List<InventoryPojo> getInventoryFromPoppinUpdated(List<VendorSkuToModelNumMapDAO> inventoryDAOs) throws /*NetsuiteNullResponseException,*/ NetsuiteOperationException {
-		
-		List<KitItem> kitItemsList = new ArrayList<>();
-		List<InventoryItem> inventoryItemsList = new ArrayList<>();
-		List<InventoryPojo> inventoryPojoList  = new ArrayList<>();
-		
-		retrieveInventories(inventoryDAOs,kitItemsList,inventoryItemsList);			
-		
-		Map<String, VendorSkuToModelNumMapDAO> internalIdToInventoryDAOMap = new HashMap<>();		
-		for (VendorSkuToModelNumMapDAO inventoryDAO:inventoryDAOs){
-			internalIdToInventoryDAOMap.put(String.valueOf(inventoryDAO.getItemInternalId()), inventoryDAO);
-		}	
-		
-		extractInventoryPojoListFromInventoryItemList(inventoryItemsList,inventoryPojoList, internalIdToInventoryDAOMap);
-		
-		Set<String> setInventoriesIdsToPreload = getInventoriesInternalIdsToPreload(inventoryItemsList, kitItemsList);
-		
-		preloadKitInventory(inventoryItemsList,setInventoriesIdsToPreload);
-		
-		extractInventoryPojoListFromKitItemList(inventoryItemsList, kitItemsList, inventoryPojoList, internalIdToInventoryDAOMap);
-		
-		return inventoryPojoList;
-	}
-
-	private void extractInventoryPojoListFromKitItemList(List<InventoryItem> inventoryItemsList, List<KitItem> kitItemsList, List<InventoryPojo> inventoryPojoList,	Map<String, VendorSkuToModelNumMapDAO> internalIdToInventoryDAOMap) {
-		Map<String,InventoryItem> internalIdToInventoryItemMap = new HashMap<>();
-		
-		for (InventoryItem invItem:inventoryItemsList){
-			internalIdToInventoryItemMap.put(invItem.getInternalId(),invItem);
-		}
-		
-		for (KitItem kitItem:kitItemsList){
-			InventoryPojo invPojo = new InventoryPojo();			
-			List<Double> memberQtys = new ArrayList<>();			
-			for (ItemMember itemMember:kitItem.getMemberList().getItemMember()){
-				InventoryItem itemInvMember =  internalIdToInventoryItemMap.get(itemMember.getItem().getInternalId());
-				Double locationQty = new Double(0);
-				for (InventoryItemLocations location:itemInvMember.getLocationsList().getLocations()){
-					if (location.getLocationId().getInternalId().equalsIgnoreCase("4")){ //DOT COM
-						locationQty = location.getQuantityAvailable();
-						break;
-					}
-				}	
-				if (locationQty == null){
-					memberQtys.add(new Double(0));
-				} else {
-					memberQtys.add(Math.floor(locationQty/itemMember.getQuantity()));
-				}				
-			}
-			Double kitAvailableQty = new Double(Double.MAX_VALUE);
-			for (Double mememberQty:memberQtys){
-				if (mememberQty<kitAvailableQty){
-					kitAvailableQty = mememberQty;
-				}
-			}
-			
-			if (kitAvailableQty != Double.MAX_VALUE){
-				invPojo.setQtyonhand(String.valueOf(kitAvailableQty));
-			} else {
-				invPojo.setQtyonhand("0.0");
-			}			
-			
-			String searchedDesc = kitItem.getDescription();
-			if(null != searchedDesc && searchedDesc.length() > 0)
-				invPojo.setDescription(searchedDesc);	
-			
-						
-			String internalId = kitItem.getInternalId();
-			if (internalIdToInventoryDAOMap.containsKey(internalId)){
-				VendorSkuToModelNumMapDAO inventoryDAO = internalIdToInventoryDAOMap.get(internalId);
-				invPojo.setVendorSKU(inventoryDAO.getModelNum());
-			} else {
-				continue;
-			}	
-			
-			String sku = kitItem.getItemId();
-			if(null != sku && sku.length() > 0){
-				invPojo.setUPC(sku);				
-			} 
-			
-			inventoryPojoList.add(invPojo);
-		}
-	}
-
-	private void preloadKitInventory(List<InventoryItem> inventoryItemsList, Set<String> setInventoriesIdsToPreload) throws /*NetsuiteNullResponseException,*/ NetsuiteOperationException {
-		RecordRef[] inventoryRefs = new RecordRef[setInventoriesIdsToPreload.size()];
-		Iterator<String> setStringIterator = setInventoriesIdsToPreload.iterator();	
-		int counter=0;
-		while (setStringIterator.hasNext()){			
-			inventoryRefs[counter] = new RecordRef(null, setStringIterator.next(), null, RecordType.inventoryItem);
+		RecordRef[] inventoriesRefs = new RecordRef[lineItemDAOList.size()];
+		int counter = 0;
+		for (VendorSkuToModelNumMapDAO lineItemDAO : lineItemDAOList){											
+			inventoriesRefs[counter] = new RecordRef(null,lineItemDAO.getItemInternalId(),null,RecordType.inventoryItem);	
 			counter++;
-		}
-		
-		ItemSearch itemSearch = new ItemSearch();		
-		ItemSearchBasic itemSearchBasic = new ItemSearchBasic();
-		itemSearchBasic.setInternalId(new SearchMultiSelectField(inventoryRefs, SearchMultiSelectFieldOperator.anyOf));
-		itemSearch.setBasic(itemSearchBasic);
-		SearchResult searchResult = null;		
-		do {
-			if (searchResult == null) {
-				NSRrequestDetails details = new NSRrequestDetails();
-				details.setRequestType(SoapMessageType.SEARCH);			
-				boolean exceptionHasBeenThrown = false;			
-				String errorMessage = null;	
-				try {
-					prepeareNSBindingStub();
-					searchResult = getNetSuiteStub().search(itemSearch);			
-				} catch (RemoteException e) {
-					errorMessage = null;
-					if (e instanceof AxisFault){
-						AxisFault fault = (AxisFault)e;
-						errorMessage = fault.getFaultReason();
-					} else {
-						errorMessage = e.getMessage();
-					}	
-					exceptionHasBeenThrown = true;
-					//throw  new NetsuiteOperationException(errorMessage);
-				} finally {				
-					Call call = getNetSuiteStub()._getCall();
-					try {
-						logger.info("Generating Request/Response messages.");
-						Document requestSoapXML = call.getMessageContext().getRequestMessage().getSOAPEnvelope().getAsDocument();
-						Document responseSoapXML = call.getMessageContext().getResponseMessage().getSOAPEnvelope().getAsDocument();
-						SoapMessagesSaver messageSaver = new SoapMessagesSaver();
-						SoapSaverResponse soapResponse = messageSaver.saveSoapMessage(requestSoapXML, responseSoapXML, SoapMessageType.SEARCH);
-						details.setRequestFilePath(soapResponse.getRequestFilePath());
-						details.setResponseFilePath(soapResponse.getResponseFilePath());
-					} catch (Exception e) {
-						logger.info("Could not generate Request/Response messages.");
-					}
-					if (exceptionHasBeenThrown){
-						throw  new NetsuiteOperationException(errorMessage, details);
-					}
-				}				
-				/*if(searchResult == null)
-					throw new NetsuiteNullResponseException("Failed to retrieve inventory from Poppin.");*/
-			} else 
-			{
-				NSRrequestDetails details = new NSRrequestDetails();
-				details.setRequestType(SoapMessageType.SEARCH);			
-				boolean exceptionHasBeenThrown = false;			
-				String errorMessage = null;	
-				try {
-					prepeareNSBindingStub();
-					searchResult = getNetSuiteStub().searchMoreWithId(searchResult.getSearchId(),searchResult.getPageIndex() + 1);			
-				} catch (RemoteException e) {
-					errorMessage = null;
-					if (e instanceof AxisFault){
-						AxisFault fault = (AxisFault)e;
-						errorMessage = fault.getFaultReason();
-					} else {
-						errorMessage = e.getMessage();
-					}	
-					exceptionHasBeenThrown = true;
-					//throw  new NetsuiteOperationException(errorMessage);
-				} finally {				
-					Call call = getNetSuiteStub()._getCall();
-					try {
-						logger.info("Generating Request/Response messages.");
-						Document requestSoapXML = call.getMessageContext().getRequestMessage().getSOAPEnvelope().getAsDocument();
-						Document responseSoapXML = call.getMessageContext().getResponseMessage().getSOAPEnvelope().getAsDocument();
-						SoapMessagesSaver messageSaver = new SoapMessagesSaver();
-						SoapSaverResponse soapResponse = messageSaver.saveSoapMessage(requestSoapXML, responseSoapXML, SoapMessageType.SEARCH);
-						details.setRequestFilePath(soapResponse.getRequestFilePath());
-						details.setResponseFilePath(soapResponse.getResponseFilePath());
-					} catch (Exception e) {
-						logger.info("Could not generate Request/Response messages.");
-					}
-					if (exceptionHasBeenThrown){
-						throw  new NetsuiteOperationException(errorMessage, details);
-					}
-				}				
-			}
-
-			/*if(searchResult == null)
-				throw new NetsuiteNullResponseException("Failed to retrieve inventory from Poppin.");*/
-			if(searchResult != null){
-				Record [] records = searchResult.getRecordList().getRecord();
-				
-				if(null != records){
-					for(Record record : records ){
-						if (record instanceof InventoryItem){
-							InventoryItem inventoryItem = (InventoryItem)record;
-							inventoryItemsList.add(inventoryItem);
-						} 		
-					}
-				}
-			}
-		} while (searchResult.getPageIndex() < searchResult.getTotalPages());		
-	}
-
-	private Set<String> getInventoriesInternalIdsToPreload(	List<InventoryItem> inventoryItemsList, List<KitItem> kitItemsList) {
-		Set<String> result = new HashSet<String>();
-		for(KitItem kit: kitItemsList){
-			for (ItemMember member:kit.getMemberList().getItemMember()){
-				result.add(member.getItem().getInternalId());
-			}
-		}
-		for (InventoryItem invItem:inventoryItemsList){
-			result.remove(invItem.getInternalId());
-		}
-		return result;
-	}
-
-	private void extractInventoryPojoListFromInventoryItemList(List<InventoryItem> inventoryItemsList, List<InventoryPojo> inventoryPojoList, Map<String, VendorSkuToModelNumMapDAO> internalIdToInventoryDAOMap) {
-		for (InventoryItem invItem : inventoryItemsList){			
-			InventoryPojo invPojo = new InventoryPojo();
-			
-			String searchedDesc = invItem.getPurchaseDescription();
-			if(null != searchedDesc && searchedDesc.length() > 0)
-				invPojo.setDescription(searchedDesc);
-			
-			String qtyOnHand = null;
-						
-			for (InventoryItemLocations location: invItem.getLocationsList().getLocations()){
-				if (location.getLocationId().getInternalId().equalsIgnoreCase("4")){ // DOT COM
-					Double qtyAvailable = location.getQuantityAvailable();
-					if (qtyAvailable!=null){
-						qtyOnHand = qtyAvailable.toString();
-					}					
-					break;
-				}
-			}
-			if (qtyOnHand!=null){
-				invPojo.setQtyonhand(qtyOnHand);
+		}		
+		ItemSearchAdvanced itemAdv = new ItemSearchAdvanced();
+		//CRITERIA
+		ItemSearch is = new ItemSearch();
+		ItemSearchBasic isBasic = new ItemSearchBasic();				
+		isBasic.setInternalId(new SearchMultiSelectField(inventoriesRefs, SearchMultiSelectFieldOperator.anyOf));
+		is.setBasic(isBasic);
+		itemAdv.setCriteria(is);
+		//COLUMNS	
+		ItemSearchRow itemRow = new ItemSearchRow();
+		ItemSearchRowBasic basicRow= new ItemSearchRowBasic();
+		basicRow.setType(new SearchColumnEnumSelectField[]{new SearchColumnEnumSelectField()});
+		basicRow.setInternalId(new SearchColumnSelectField[]{new SearchColumnSelectField()});
+		basicRow.setPreferredLocation(new SearchColumnSelectField[]{new SearchColumnSelectField()});
+		basicRow.setLocation(new SearchColumnSelectField[]{new SearchColumnSelectField()});
+		basicRow.setLocationQuantityAvailable(new SearchColumnDoubleField[]{new SearchColumnDoubleField()});
+		basicRow.setIsInactive(new SearchColumnBooleanField[]{new SearchColumnBooleanField()});
+		basicRow.setBasePrice(new SearchColumnDoubleField[]{new SearchColumnDoubleField()});
+		basicRow.setMemberItem(new SearchColumnSelectField[]{new SearchColumnSelectField()});
+		basicRow.setMemberQuantity(new SearchColumnDoubleField[]{new SearchColumnDoubleField()});
+		basicRow.setUpcCode(new SearchColumnStringField[]{new SearchColumnStringField()});
+		basicRow.setItemId(new SearchColumnStringField[]{new SearchColumnStringField()});
+		basicRow.setPurchaseDescription(new SearchColumnStringField[]{new SearchColumnStringField()});		
+		basicRow.setSalesDescription(new SearchColumnStringField[]{new SearchColumnStringField()});		
+		LocationSearchRowBasic locRow = new LocationSearchRowBasic();
+		locRow.setInternalId(new SearchColumnSelectField[]{new SearchColumnSelectField()});		
+		itemRow.setInventoryLocationJoin(locRow);
+		itemRow.setBasic(basicRow);
+		itemAdv.setColumns(itemRow);
+		NSRrequestDetails details = new NSRrequestDetails();
+		details.setRequestType(SoapMessageType.SEARCH);		
+		int pageIndex=2;	
+		boolean exceptionHasBeenThrown = false;
+		String errorMessage = null;
+		try {
+			prepeareNSBindingStub();
+			result = getNetSuiteStub().search(itemAdv);
+		} catch (RemoteException  e) {
+			if (e instanceof AxisFault){
+				AxisFault fault = (AxisFault)e;
+				errorMessage = fault.getFaultReason();
 			} else {
-				invPojo.setQtyonhand("0.0");
-			}
-			
-			String upc = invItem.getUpcCode();
-			if(null != upc && upc.length() > 0){
-				invPojo.setUPC(upc);
-			} 		
-			
-			String internalId = invItem.getInternalId();
-			if (internalIdToInventoryDAOMap.containsKey(internalId)){
-				VendorSkuToModelNumMapDAO inventoryDAO = internalIdToInventoryDAOMap.get(internalId);
-				invPojo.setVendorSKU(inventoryDAO.getModelNum());
-			} else {
-				continue;
+				errorMessage = e.getMessage();
 			}		
-		
-			/*String sku = invItem.getItemId();
-			if(null != sku && sku.length() > 0){
-				if (skuToInventoryDAOMap.containsKey(sku)){
-					VendorSkuToModelNumMapDAO inventoryDAO = skuToInventoryDAOMap.get(sku);
-					invPojo.setVendorSKU(inventoryDAO.getModelNum());
-				} else {
-					continue;
-				}			
-			} else {
-				continue;
-			}*/
-			inventoryPojoList.add(invPojo);			
-		}
-	}
-
-	private void retrieveInventories(List<VendorSkuToModelNumMapDAO> inventoryDAOs,	List<KitItem> kitItemsList, List<InventoryItem> inventoryItemsList) throws /*NetsuiteNullResponseException,*/ NetsuiteOperationException {
-		SearchResult searchResult = null;
-		List<RecordList> recListList = new ArrayList<>();		
-		int counter = 1;
-		List<VendorSkuToModelNumMapDAO> bufferList = new ArrayList<>();
-		List<List<VendorSkuToModelNumMapDAO>> bufferListList = new ArrayList<>();
-		for (VendorSkuToModelNumMapDAO lineItemDAO:inventoryDAOs){			
-			if (counter % 101 ==0 ){
-				bufferListList.add(bufferList);
-				bufferList = new ArrayList<>();
-				counter = 1;
+			//throw  new NetsuiteOperationException(errorMessage);
+			exceptionHasBeenThrown = true;
+		} finally {				
+			Call call = getNetSuiteStub()._getCall();
+			try {
+				logger.info("Generating Request/Response messages.");
+				Document requestSoapXML = call.getMessageContext().getRequestMessage().getSOAPEnvelope().getAsDocument();
+				Document responseSoapXML = call.getMessageContext().getResponseMessage().getSOAPEnvelope().getAsDocument();
+				SoapMessagesSaver messageSaver = new SoapMessagesSaver();
+				//messageSaver.saveSoapMessage(requestSoapXML, responseSoapXML, SoapMessageType.SEARCH);
+				SoapSaverResponse soapResponse = messageSaver.saveSoapMessage(requestSoapXML, responseSoapXML, SoapMessageType.SEARCH);
+				details.setRequestFilePath(soapResponse.getRequestFilePath());
+				details.setResponseFilePath(soapResponse.getResponseFilePath());
+			} catch (Exception e) {
+				logger.info("Could not generate Request/Response messages.");
 			}
-			bufferList.add(lineItemDAO);
-			counter++;
 		}
-		bufferListList.add(bufferList);	
-		 for (List<VendorSkuToModelNumMapDAO> itemsBufferedList : bufferListList){
-			 if (itemsBufferedList.size()>0){
-				 RecordRef[] inventoriesRefs = new RecordRef[itemsBufferedList.size()];				
-					for (int i=0; i<inventoriesRefs.length;i++){					
-						inventoriesRefs[i] = new RecordRef(null,itemsBufferedList.get(i).getItemInternalId(),null,RecordType.inventoryItem);
-					}		
-					ItemSearchBasic itembasic = new ItemSearchBasic();
-					ItemSearch is = new ItemSearch();		
-					is.setBasic(itembasic);		
-					itembasic.setInternalId(new SearchMultiSelectField(inventoriesRefs, SearchMultiSelectFieldOperator.anyOf));		
-					int pageIndex=2;
-					NSRrequestDetails details = new NSRrequestDetails();
-					details.setRequestType(SoapMessageType.SEARCH);			
-					boolean exceptionHasBeenThrown = false;			
-					String errorMessage = null;	
+		if(exceptionHasBeenThrown)
+			throw new NetsuiteOperationException(errorMessage, details);
+		if(null != result && result.getStatus().isIsSuccess() && result.getTotalRecords() > 0){
+			searchRowListList.add(result.getSearchRowList());
+			int totalPages = result.getTotalPages();
+			if(totalPages > 1){
+				String searchId = result.getSearchId();
+				while(pageIndex <= totalPages){
+					details = new NSRrequestDetails();
+					details.setRequestType(SoapMessageType.SEARCH);					
+					exceptionHasBeenThrown = false;
+					errorMessage = null;
 					try {
 						prepeareNSBindingStub();
-						searchResult = getNetSuiteStub().search(is);			
-					} catch (RemoteException e) {
-						errorMessage = null;
+						result = getNetSuiteStub().searchMoreWithId(searchId, pageIndex);
+					} catch (RemoteException  e) {
 						if (e instanceof AxisFault){
 							AxisFault fault = (AxisFault)e;
 							errorMessage = fault.getFaultReason();
 						} else {
 							errorMessage = e.getMessage();
-						}		
+						}						
 						exceptionHasBeenThrown = true;
-						//throw  new NetsuiteOperationException(errorMessage);
 					} finally {				
 						Call call = getNetSuiteStub()._getCall();
 						try {
@@ -2000,76 +1759,348 @@ public class NetsuiteOperationsManager extends NetSuiteClient implements INetsui
 							Document requestSoapXML = call.getMessageContext().getRequestMessage().getSOAPEnvelope().getAsDocument();
 							Document responseSoapXML = call.getMessageContext().getResponseMessage().getSOAPEnvelope().getAsDocument();
 							SoapMessagesSaver messageSaver = new SoapMessagesSaver();
+							//messageSaver.saveSoapMessage(requestSoapXML, responseSoapXML, SoapMessageType.SEARCH);
 							SoapSaverResponse soapResponse = messageSaver.saveSoapMessage(requestSoapXML, responseSoapXML, SoapMessageType.SEARCH);
 							details.setRequestFilePath(soapResponse.getRequestFilePath());
 							details.setResponseFilePath(soapResponse.getResponseFilePath());
 						} catch (Exception e) {
 							logger.info("Could not generate Request/Response messages.");
 						}
-						if (exceptionHasBeenThrown){
-							throw  new NetsuiteOperationException(errorMessage, details);
+					}
+					if(exceptionHasBeenThrown)
+						throw new NetsuiteOperationException(errorMessage, details);
+					if(null != result && result.getStatus().isIsSuccess() && result.getTotalRecords() > 0){
+						searchRowListList.add(result.getSearchRowList());
+					} else {
+						int i = 1;	
+						errorMessage = new String();
+						for (StatusDetail detail:result.getStatus().getStatusDetail()){
+							errorMessage+=i+". "+detail.getMessage()+"\r\n";
+							i++;
 						}
-					}				
-					/*if(searchResult == null)
-						throw new NetsuiteNullResponseException("Failed to retrieve inventory from Poppin.");*/	
-					if(searchResult != null)
-					{
-						recListList.add(searchResult.getRecordList());
-						int totalPages = searchResult.getTotalPages();
-						if(totalPages > 1){					
-							while(pageIndex <= totalPages){
-								NSRrequestDetails details2 = new NSRrequestDetails();
-								details2.setRequestType(SoapMessageType.SEARCH);			
-								boolean exceptionHasBeenThrown2 = false;			
-								String errorMessage2 = null;
-								try {	
-									prepeareNSBindingStub();
-									searchResult = getNetSuiteStub().searchMoreWithId(searchResult.getSearchId(),searchResult.getPageIndex() + 1);			
-								} catch (RemoteException e) {
-									errorMessage2 = null;
-									if (e instanceof AxisFault){
-										AxisFault fault = (AxisFault)e;
-										errorMessage2 = fault.getFaultReason();
-									} else {
-										errorMessage2 = e.getMessage();
-									}
-									exceptionHasBeenThrown2 = true;
-									//throw  new NetsuiteOperationException(errorMessage);
-								} finally {				
-									Call call = getNetSuiteStub()._getCall();
-									try {
-										logger.info("Generating Request/Response messages.");
-										Document requestSoapXML = call.getMessageContext().getRequestMessage().getSOAPEnvelope().getAsDocument();
-										Document responseSoapXML = call.getMessageContext().getResponseMessage().getSOAPEnvelope().getAsDocument();
-										SoapMessagesSaver messageSaver = new SoapMessagesSaver();
-										SoapSaverResponse soapResponse = messageSaver.saveSoapMessage(requestSoapXML, responseSoapXML, SoapMessageType.SEARCH);
-										details2.setRequestFilePath(soapResponse.getRequestFilePath());
-										details2.setResponseFilePath(soapResponse.getResponseFilePath());
-									} catch (Exception e) {
-										logger.info("Could not generate Request/Response messages.");
-									}
-									if (exceptionHasBeenThrown2){
-										throw  new NetsuiteOperationException(errorMessage2, details2);
-									}
-								}
-								recListList.add(searchResult.getRecordList());
-								pageIndex++;
+						throw new NetsuiteOperationException(errorMessage, details);
+					}
+					pageIndex++;
+				}
+			}		
+		} else {
+			int i = 1;	
+			errorMessage = new String();
+			for (StatusDetail detail:result.getStatus().getStatusDetail()){
+				errorMessage+=i+". "+detail.getMessage()+"\r\n";
+				i++;
+			}
+			throw new NetsuiteOperationException(errorMessage, details);
+		}		
+		return proccessSearchResultsForInventoryUpdate(searchRowListList, internalIdtoLineItemDAOMap);
+	}
+	
+	private Map<String,InventoryPojo> wrapSearchResultsForInventorySearch(List<SearchRowList> searchRowListList) {		
+		Map<String,InventoryPojo> intIdToRecordMap = new HashMap<>();
+		for (SearchRowList srList:searchRowListList){
+			for (SearchRow sr: srList.getSearchRow()){
+				if (sr instanceof ItemSearchRow){
+					ItemSearchRow isr = (ItemSearchRow)sr;
+					ItemSearchRowBasic isrb = isr.getBasic();
+					LocationSearchRowBasic locationJoin = isr.getInventoryLocationJoin();
+					String internalId = isrb.getInternalId()[0].getSearchValue().getInternalId();
+					String type = isrb.getType()[0].getSearchValue();
+					if (type.equalsIgnoreCase("_kit")){
+						if (intIdToRecordMap.containsKey(internalId)){
+							InventoryKitPojo kitPojo = (InventoryKitPojo) intIdToRecordMap.get(internalId);
+							InventoryKitSubItemPojo subItem = new InventoryKitSubItemPojo();
+							subItem.setQtyInKit(isrb.getMemberQuantity()[0].getSearchValue());
+							subItem.setInternalId(isrb.getMemberItem()[0].getSearchValue().getInternalId());
+							kitPojo.getSubItemsList().add(subItem);
+						} else {							
+							InventoryKitPojo kitPojo = new InventoryKitPojo();
+							//kitPojo.setInactive(isrb.getIsInactive()[0].getSearchValue());
+							kitPojo.setInternalId(internalId);
+							kitPojo.setUPC(isrb.getItemId()[0].getSearchValue());
+							//kitPojo.setPrice(isrb.getBasePrice()[0].getSearchValue());
+							kitPojo.setDescription(isrb.getSalesDescription()[0].getSearchValue());
+							kitPojo.setSubItemsList(new ArrayList<InventoryKitSubItemPojo>());
+							InventoryKitSubItemPojo subItem = new InventoryKitSubItemPojo();
+							subItem.setQtyInKit(isrb.getMemberQuantity()[0].getSearchValue());
+							subItem.setInternalId(isrb.getMemberItem()[0].getSearchValue().getInternalId());
+							kitPojo.getSubItemsList().add(subItem);
+							if (isrb.getLocation()!=null){
+								kitPojo.setNsLocationId(isrb.getLocation()[0].getSearchValue().getInternalId());
+							} else {
+								CHIntegrationError error = new CHIntegrationError();
+								error.setErrorMessage("Location is 'NULL' for Kit item (internalId='"+internalId+"') . It will be excluded from vendors daily inventory update file.");
+								ErrorsCollector.addCommonErrorMessage(error);
+								continue;
+							}	
+							intIdToRecordMap.put(internalId, kitPojo);
+						}
+					} else if (type.equalsIgnoreCase("_inventoryItem")){
+						if (intIdToRecordMap.containsKey(internalId)){	
+							InventoryItemPojo itemPojo = (InventoryItemPojo) intIdToRecordMap.get(internalId);							
+							LocationQuantitiesAvailiable locQty = new LocationQuantitiesAvailiable();
+							locQty.setLocationInternalId(locationJoin.getInternalId()[0].getSearchValue().getInternalId());
+							if ((isrb.getLocationQuantityAvailable()!=null)&&(isrb.getLocationQuantityAvailable()[0]!=null)&&(isrb.getLocationQuantityAvailable()[0].getSearchValue()!=null)){
+								locQty.setLocationQtyAvailiable(isrb.getLocationQuantityAvailable()[0].getSearchValue());
+							} else {
+								locQty.setLocationQtyAvailiable(0d);
+							}							
+							itemPojo.getLocQtyList().add(locQty);
+						} else {							
+							InventoryItemPojo itemPojo = new InventoryItemPojo();
+							//itemPojo.setInactive(isrb.getIsInactive()[0].getSearchValue());
+							itemPojo.setInternalId(internalId);
+							//itemPojo.setPrice(isrb.getBasePrice()[0].getSearchValue());
+							itemPojo.setDescription(isrb.getPurchaseDescription()[0].getSearchValue());
+							itemPojo.setUPC(isrb.getUpcCode()[0].getSearchValue());							
+							LocationQuantitiesAvailiable locQty = new LocationQuantitiesAvailiable();
+							locQty.setLocationInternalId(locationJoin.getInternalId()[0].getSearchValue().getInternalId());
+							if ((isrb.getLocationQuantityAvailable()!=null)&&(isrb.getLocationQuantityAvailable()[0]!=null)&&(isrb.getLocationQuantityAvailable()[0].getSearchValue()!=null)){
+								locQty.setLocationQtyAvailiable(isrb.getLocationQuantityAvailable()[0].getSearchValue());
+							} else {
+								locQty.setLocationQtyAvailiable(0d);
+							}
+							itemPojo.setLocQtyList(new ArrayList<LocationQuantitiesAvailiable>());
+							itemPojo.getLocQtyList().add(locQty);
+							if (isrb.getPreferredLocation()!=null){
+								itemPojo.setPreferedLocationId(isrb.getPreferredLocation()[0].getSearchValue().getInternalId());
+							} else {								
+								CHIntegrationError error = new CHIntegrationError();
+								error.setErrorMessage("PrefferedLocation is 'NULL' for Inventory item (internalId='"+internalId+"') . It will be excluded from vendors daily inventory update file.");
+								ErrorsCollector.addCommonErrorMessage(error);
+								continue;
+							}	
+							intIdToRecordMap.put(internalId, itemPojo);
+						}
+					}					
+				}
+			}
+		}
+		return intIdToRecordMap;
+	}
+
+	//here we separate search results for combined search and make list of nested Inventory items (inside KIT/PACKAGE items) that are required to load data from NS
+	private Collection<InventoryPojo> proccessSearchResultsForInventoryUpdate(List<SearchRowList> searchRowListList , Map<String,VendorSkuToModelNumMapDAO> internalIdtolineItemDAOMap) throws NetsuiteOperationException{
+		 Map<String, InventoryPojo> internalIdToInventoryPojoMap = null;
+		 Set<String> iiIdsToPreloadSet = new HashSet<String>();			
+		 Map<String,InventoryItemPojo> internalIdToHouzInventoryItemPojoFullMap = new HashMap<>();		
+		 
+		 internalIdToInventoryPojoMap = wrapSearchResultsForInventorySearch(searchRowListList);			
+		 
+		 for (InventoryPojo invPojo:internalIdToInventoryPojoMap.values()){
+			 if (invPojo instanceof InventoryKitPojo){
+				 InventoryKitPojo kitPojo = (InventoryKitPojo)invPojo;				 
+				 for (InventoryKitSubItemPojo subItem:kitPojo.getSubItemsList()){
+					 if (!internalIdToInventoryPojoMap.containsKey(subItem.getInternalId())){
+						 iiIdsToPreloadSet.add(subItem.getInternalId());
+					 }
+				 }			 
+			 } else if (invPojo instanceof InventoryItemPojo){
+				 InventoryItemPojo invItemPojo = (InventoryItemPojo)invPojo;
+				 internalIdToHouzInventoryItemPojoFullMap.put(invItemPojo.getInternalId(), invItemPojo);
+			 }
+		 }
+		 if (iiIdsToPreloadSet.size()>0){			
+			 loadKitPackageInventory(iiIdsToPreloadSet, internalIdToHouzInventoryItemPojoFullMap);
+		 }	
+		 for (InventoryPojo invPojo:internalIdToInventoryPojoMap.values()){
+			 if (invPojo instanceof InventoryKitPojo){
+				 InventoryKitPojo kitPojo = (InventoryKitPojo)invPojo;				
+				 for (InventoryKitSubItemPojo invSubItemPojo:kitPojo.getSubItemsList()){
+					 InventoryItemPojo apropriateNsInventory = internalIdToHouzInventoryItemPojoFullMap.get(invSubItemPojo.getInternalId());				 
+					 for (LocationQuantitiesAvailiable location:apropriateNsInventory.getLocQtyList()){
+						 if (location.getLocationInternalId().equalsIgnoreCase(kitPojo.getNsLocationId())){
+							 invSubItemPojo.setQtyAvailiable(location.getLocationQtyAvailiable());
+						 }
+					 }							
+					// invSubItemPojo.setInactive(apropriateNsInventory.isInactive());						
+				 }
+			  }			
+		 } 		
+		for (Entry<String,InventoryPojo> invPojo:internalIdToInventoryPojoMap.entrySet()){ 
+		 if (internalIdtolineItemDAOMap.containsKey(invPojo.getKey())){
+			 invPojo.getValue().setVendorSKU(internalIdtolineItemDAOMap.get(invPojo.getKey()).getModelNum());
+		 } 
+		}
+		return internalIdToInventoryPojoMap.values();
+	}
+
+	// here we make another one request to NS for items contains in KIT/PACKAGE
+	private void loadKitPackageInventory(Set<String> internalIds, Map<String,InventoryItemPojo> internalIdToHouzInventoryItemPojoFullMap) throws NetsuiteOperationException{
+		SearchResult result=null;
+		List<SearchRowList> rowListList = new ArrayList<>();
+		if (internalIds.size()>0){			
+			String[] idsArray = internalIds.toArray(new String[internalIds.size()]);
+			RecordRef[] inventoriesRefs = new RecordRef[idsArray.length];
+			for (int i=0; i<idsArray.length;i++){				
+				inventoriesRefs[i] = new RecordRef(null,idsArray[i],null,RecordType.inventoryItem);
+			}		
+			ItemSearchBasic itembasic = new ItemSearchBasic();
+			ItemSearch is = new ItemSearch();		
+			is.setBasic(itembasic);		
+			itembasic.setInternalId(new SearchMultiSelectField(inventoriesRefs, SearchMultiSelectFieldOperator.anyOf));	
+			ItemSearchAdvanced itemAdv = new ItemSearchAdvanced();
+			itemAdv.setCriteria(is);
+			ItemSearchRow itemRow = new ItemSearchRow();
+			ItemSearchRowBasic basicRow= new ItemSearchRowBasic();
+			basicRow.setType(new SearchColumnEnumSelectField[]{new SearchColumnEnumSelectField()});
+			basicRow.setInternalId(new SearchColumnSelectField[]{new SearchColumnSelectField()});
+			basicRow.setPreferredLocation(new SearchColumnSelectField[]{new SearchColumnSelectField()});			
+			basicRow.setLocationQuantityAvailable(new SearchColumnDoubleField[]{new SearchColumnDoubleField()});
+			basicRow.setIsInactive(new SearchColumnBooleanField[]{new SearchColumnBooleanField()});
+			basicRow.setBasePrice(new SearchColumnDoubleField[]{new SearchColumnDoubleField()});			
+			basicRow.setUpcCode(new SearchColumnStringField[]{new SearchColumnStringField()});
+			basicRow.setPurchaseDescription(new SearchColumnStringField[]{new SearchColumnStringField()});
+			LocationSearchRowBasic locRow = new LocationSearchRowBasic();
+			locRow.setInternalId(new SearchColumnSelectField[]{new SearchColumnSelectField()});		
+			itemRow.setInventoryLocationJoin(locRow);
+			itemRow.setBasic(basicRow);
+			itemAdv.setColumns(itemRow);	
+			NSRrequestDetails details = new NSRrequestDetails();
+			details.setRequestType(SoapMessageType.SEARCH);		
+			int pageIndex=2;	
+			boolean exceptionHasBeenThrown = false;
+			String errorMessage = null;
+			try {
+				prepeareNSBindingStub();
+				result = getNetSuiteStub().search(itemAdv);
+			} catch (RemoteException  e) {
+				if (e instanceof AxisFault){
+					AxisFault fault = (AxisFault)e;
+					errorMessage = fault.getFaultReason();
+				} else {
+					errorMessage = e.getMessage();
+				}		
+				//throw  new NetsuiteOperationException(errorMessage);
+				exceptionHasBeenThrown = true;
+			} finally {				
+				Call call = getNetSuiteStub()._getCall();
+				try {
+					logger.info("Generating Request/Response messages.");
+					Document requestSoapXML = call.getMessageContext().getRequestMessage().getSOAPEnvelope().getAsDocument();
+					Document responseSoapXML = call.getMessageContext().getResponseMessage().getSOAPEnvelope().getAsDocument();
+					SoapMessagesSaver messageSaver = new SoapMessagesSaver();
+					//messageSaver.saveSoapMessage(requestSoapXML, responseSoapXML, SoapMessageType.SEARCH);
+					SoapSaverResponse soapResponse = messageSaver.saveSoapMessage(requestSoapXML, responseSoapXML, SoapMessageType.SEARCH);
+					details.setRequestFilePath(soapResponse.getRequestFilePath());
+					details.setResponseFilePath(soapResponse.getResponseFilePath());
+				} catch (Exception e) {
+					logger.info("Could not generate Request/Response messages.");
+				}
+			}
+			if(exceptionHasBeenThrown)
+				throw new NetsuiteOperationException(errorMessage, details);
+			if(null != result && result.getStatus().isIsSuccess() && result.getTotalRecords() > 0){
+				rowListList.add(result.getSearchRowList());
+				int totalPages = result.getTotalPages();
+				if(totalPages > 1){
+					String searchId = result.getSearchId();
+					while(pageIndex <= totalPages){
+						details = new NSRrequestDetails();
+						details.setRequestType(SoapMessageType.SEARCH);					
+						exceptionHasBeenThrown = false;
+						errorMessage = null;
+						try {
+							prepeareNSBindingStub();
+							result = getNetSuiteStub().searchMoreWithId(searchId, pageIndex);
+						} catch (RemoteException  e) {
+							if (e instanceof AxisFault){
+								AxisFault fault = (AxisFault)e;
+								errorMessage = fault.getFaultReason();
+							} else {
+								errorMessage = e.getMessage();
+							}						
+							exceptionHasBeenThrown = true;
+						} finally {				
+							Call call = getNetSuiteStub()._getCall();
+							try {
+								logger.info("Generating Request/Response messages.");
+								Document requestSoapXML = call.getMessageContext().getRequestMessage().getSOAPEnvelope().getAsDocument();
+								Document responseSoapXML = call.getMessageContext().getResponseMessage().getSOAPEnvelope().getAsDocument();
+								SoapMessagesSaver messageSaver = new SoapMessagesSaver();
+								//messageSaver.saveSoapMessage(requestSoapXML, responseSoapXML, SoapMessageType.SEARCH);
+								SoapSaverResponse soapResponse = messageSaver.saveSoapMessage(requestSoapXML, responseSoapXML, SoapMessageType.SEARCH);
+								details.setRequestFilePath(soapResponse.getRequestFilePath());
+								details.setResponseFilePath(soapResponse.getResponseFilePath());
+							} catch (Exception e) {
+								logger.info("Could not generate Request/Response messages.");
 							}
 						}
-			 		}
-			 	}			 				
-		 	}
-		 for (RecordList recList:recListList){
-			 for (Record rec:recList.getRecord()){
-				 if (rec instanceof InventoryItem){
-					 InventoryItem invItem = (InventoryItem) rec;
-					 inventoryItemsList.add(invItem);
-				 } else if (rec instanceof KitItem){
-					 KitItem kitItem = (KitItem) rec;
-					 kitItemsList.add(kitItem);
-				 }
-			 }
-		 }		 
+						if(exceptionHasBeenThrown)
+							throw new NetsuiteOperationException(errorMessage, details);
+						if(null != result && result.getStatus().isIsSuccess() && result.getTotalRecords() > 0){
+							rowListList.add(result.getSearchRowList());
+						} else {
+							int i = 1;	
+							errorMessage = new String();
+							for (StatusDetail detail:result.getStatus().getStatusDetail()){
+								errorMessage+=i+". "+detail.getMessage()+"\r\n";
+								i++;
+							}
+							throw new NetsuiteOperationException(errorMessage, details);
+						}
+						pageIndex++;
+					}
+				}		
+			} else {
+				int i = 1;	
+				errorMessage = new String();
+				for (StatusDetail detail:result.getStatus().getStatusDetail()){
+					errorMessage+=i+". "+detail.getMessage()+"\r\n";
+					i++;
+				}
+				throw new NetsuiteOperationException(errorMessage, details);
+			}		
+		}
+		processSearchResultsFromKitPackageInventory(rowListList, internalIdToHouzInventoryItemPojoFullMap);	
+	}
+	
+	//here we process search results for loadKitPackageInventory()
+	private void processSearchResultsFromKitPackageInventory(List<SearchRowList> rowListList, Map<String,InventoryItemPojo> internalIdToHouzInventoryItemPojoFullMap){		
+		for (SearchRowList srList:rowListList){
+			for (SearchRow sr: srList.getSearchRow()){
+				if (sr instanceof ItemSearchRow){
+					ItemSearchRow isr = (ItemSearchRow)sr;
+					ItemSearchRowBasic isrb = isr.getBasic();
+					LocationSearchRowBasic locationJoin = isr.getInventoryLocationJoin();
+					String internalId = isrb.getInternalId()[0].getSearchValue().getInternalId();
+					String type = isrb.getType()[0].getSearchValue();
+					if (type.equalsIgnoreCase("_inventoryItem")){
+						if (internalIdToHouzInventoryItemPojoFullMap.containsKey(internalId)){	
+							InventoryItemPojo itemPojo = (InventoryItemPojo) internalIdToHouzInventoryItemPojoFullMap.get(internalId);
+							
+							LocationQuantitiesAvailiable locQty = new LocationQuantitiesAvailiable();
+							locQty.setLocationInternalId(locationJoin.getInternalId()[0].getSearchValue().getInternalId());
+							if ((isrb.getLocationQuantityAvailable()!=null)&&(isrb.getLocationQuantityAvailable()[0]!=null)&&(isrb.getLocationQuantityAvailable()[0].getSearchValue()!=null)){
+								locQty.setLocationQtyAvailiable(isrb.getLocationQuantityAvailable()[0].getSearchValue());
+							} else {
+								locQty.setLocationQtyAvailiable(0d);
+							}							
+							itemPojo.getLocQtyList().add(locQty);
+						} else {
+							InventoryItemPojo itemPojo = new InventoryItemPojo();
+							//itemPojo.setInactive(isrb.getIsInactive()[0].getSearchValue());
+							itemPojo.setInternalId(internalId);
+							//itemPojo.setPrice(isrb.getBasePrice()[0].getSearchValue());							
+							itemPojo.setUPC(isrb.getUpcCode()[0].getSearchValue());	
+							itemPojo.setDescription(isrb.getPurchaseDescription()[0].getSearchValue());
+							LocationQuantitiesAvailiable locQty = new LocationQuantitiesAvailiable();
+							locQty.setLocationInternalId(locationJoin.getInternalId()[0].getSearchValue().getInternalId());
+							if ((isrb.getLocationQuantityAvailable()!=null)&&(isrb.getLocationQuantityAvailable()[0]!=null)&&(isrb.getLocationQuantityAvailable()[0].getSearchValue()!=null)){
+								locQty.setLocationQtyAvailiable(isrb.getLocationQuantityAvailable()[0].getSearchValue());
+							} else {
+								locQty.setLocationQtyAvailiable(0d);
+							}
+							itemPojo.setLocQtyList(new ArrayList<LocationQuantitiesAvailiable>());
+							itemPojo.getLocQtyList().add(locQty);
+							if (isrb.getPreferredLocation()!=null){
+								itemPojo.setPreferedLocationId(isrb.getPreferredLocation()[0].getSearchValue().getInternalId());
+							}
+							internalIdToHouzInventoryItemPojoFullMap.put(internalId, itemPojo);
+						}
+					}					
+				}
+			}
+		}	
 	}
 	
 	@Override
@@ -2108,8 +2139,7 @@ public class NetsuiteOperationsManager extends NetSuiteClient implements INetsui
 					errorMessage = fault.getFaultReason();
 				} else {
 					errorMessage = e.getMessage();
-				}		
-				//ErrorsCollector.addCommonErrorMessage(errorMessage);
+				}					
 				ErrorsCollector.addCommonErrorMessage(new CHIntegrationError(errorMessage));
 			} finally {				
 				Call call = getNetSuiteStub()._getCall();
@@ -2151,5 +2181,5 @@ public class NetsuiteOperationsManager extends NetSuiteClient implements INetsui
 			}
 		}
 		return poNumberToOrderStatusMap;
-	}
+	}	
 }

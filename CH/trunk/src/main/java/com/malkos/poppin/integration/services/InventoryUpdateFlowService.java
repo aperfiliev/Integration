@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
@@ -76,7 +77,7 @@ public class InventoryUpdateFlowService implements IInventoryUpdateFlowService {
 		//persitenceManager.updateInventoryDAO(inventoryDAOs);		
 		//THIS IS SERVICE PART OF CODE DO NOT UNCOMMENT IT IF NOT REQUIRED!!!
 		
-		List<InventoryPojo> records = new ArrayList<InventoryPojo>();
+		Collection<InventoryPojo> records = new ArrayList<InventoryPojo>();
 		logger.info("Retrieving vendorSKUs and ModelNum values for items that Staplse merchand sales.");
 		//Map<String,String> VendorSkuToModelNumMap = persitenceManager.getVendorSkuToModelNumMap();
 		List<VendorSkuToModelNumMapDAO> inventoryDAOs =  persistanceManager.getInventoryDAO();
@@ -138,7 +139,7 @@ public class InventoryUpdateFlowService implements IInventoryUpdateFlowService {
 					Double qty = 0.0;
 					Element qtyOnHand = doc.createElement("qtyonhand");
 					try {
-						qty = Double.valueOf(item.getQtyonhand());
+						qty = Double.valueOf(item.getQtyAvailable());
 						if (qty > 100 ){
 							qty = qty * multiplierMoreThen100;
 						}

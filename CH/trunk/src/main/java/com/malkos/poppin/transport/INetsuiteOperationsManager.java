@@ -1,5 +1,6 @@
 package com.malkos.poppin.transport;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -27,8 +28,8 @@ public interface INetsuiteOperationsManager {
 	public Map<String, String> getItemInternalIdToItemNumberMap(List<SalesOrder> records) throws /*NetsuiteNullResponseException,*/ NetsuiteOperationException;
 	public Map<String, CustomerShppingAddressPojo> getsalesOrderIdToShippingAddressMap(List<SalesOrder> records) throws /*NetsuiteNullResponseException,*/ NetsuiteOperationException;
 	public List<InventoryItem> getInventoryFromPoppin();
-	public List<InventoryPojo> getInventoryFromPoppinAdvanced(Map<String, String> vendorSkuToModelNumMap) throws NetsuiteNullResponseException, NetsuiteOperationException;
+	//public List<InventoryPojo> getInventoryFromPoppinAdvanced(Map<String, String> vendorSkuToModelNumMap) throws NetsuiteNullResponseException, NetsuiteOperationException;
 	//public void retrieveInventoryInternalIdFromPoppin(List<VendorSkuToModelNumMapDAO> inventoryDAOs);
-	public List<InventoryPojo> getInventoryFromPoppinUpdated(List<VendorSkuToModelNumMapDAO> inventoryDAOs) throws /*NetsuiteNullResponseException,*/ NetsuiteOperationException;
+	public Collection<InventoryPojo> getInventoryFromPoppinUpdated(List<VendorSkuToModelNumMapDAO> inventoryDAOs) throws /*NetsuiteNullResponseException,*/ NetsuiteOperationException;
 	Map<String, UnprocessibleOrdersType> retrieveCancelledClosedOrders(List<PurchaseOrderDAO> purchaseOrderDAOs);
 }
