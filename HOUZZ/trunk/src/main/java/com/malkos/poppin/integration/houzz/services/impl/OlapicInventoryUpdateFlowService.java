@@ -6,7 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.malkos.poppin.integration.houzz.entities.IntegrationError;
-import com.malkos.poppin.integration.houzz.entities.InventoryItemPojo;
+import com.malkos.poppin.integration.houzz.entities.InventoryPojo;
 import com.malkos.poppin.integration.houzz.entities.NSRrequestDetails;
 import com.malkos.poppin.integration.houzz.entities.RetailerAbstract;
 import com.malkos.poppin.integration.houzz.entities.RetailerManager;
@@ -35,7 +35,7 @@ public class OlapicInventoryUpdateFlowService implements IInventoryUpdateFlowSer
 		INetsuiteOperationsManager operationsManager = new NetsuiteOperationsManager();
 		ICsvMessageGenerator olapicMessageGenerator = new OlapicInventoryUpdateMessageGenerator();
 		IPersistenceManager persistenceManager = new PersistenceManager();
-		List<InventoryItemPojo> lstOlapicInventories;
+		List<InventoryPojo> lstOlapicInventories;
 		try {
 			logger.debug("OLAPIC Inventory Update retrieving data from NetSuite ...");
 			olapicRretailer.getLogger().addMessage("OLAPIC Inventory Update retrieving data from NetSuite ...");

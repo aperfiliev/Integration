@@ -5,19 +5,19 @@ import java.util.List;
 
 public class HouzzUnavailableInventories {
 	
-private List<HouzzInventoryItemPojo> inactiveItemList = new ArrayList<>();
-private List<HouzzInventoryItemPojo> lowQuantityItemList = new ArrayList<>();
+private List<HouzzInventoryPojo> inactiveItemList = new ArrayList<>();
+private List<HouzzInventoryPojo> lowQuantityItemList = new ArrayList<>();
 
-public List<HouzzInventoryItemPojo> getInactiveItemList() {
+public List<HouzzInventoryPojo> getInactiveItemList() {
 	return inactiveItemList;
 }
-public void setInactiveItemList(List<HouzzInventoryItemPojo> inactiveItemList) {
+public void setInactiveItemList(List<HouzzInventoryPojo> inactiveItemList) {
 	this.inactiveItemList = inactiveItemList;
 }
-public List<HouzzInventoryItemPojo> getLowQuantityItemList() {
+public List<HouzzInventoryPojo> getLowQuantityItemList() {
 	return lowQuantityItemList;
 }
-public void setLowQuantityItemList(List<HouzzInventoryItemPojo> lowQuantityItemList) {
+public void setLowQuantityItemList(List<HouzzInventoryPojo> lowQuantityItemList) {
 	this.lowQuantityItemList = lowQuantityItemList;
 }	
 }

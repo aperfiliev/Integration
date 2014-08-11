@@ -5,6 +5,7 @@ import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -22,9 +23,10 @@ import com.malkos.poppin.integration.houzz.entities.ErrorMessageWraped;
 import com.malkos.poppin.integration.houzz.entities.HouzzInventoryItemPojo;
 import com.malkos.poppin.integration.houzz.entities.HouzzInventoryKitPojo;
 import com.malkos.poppin.integration.houzz.entities.HouzzInventoryKitSubItemPojo;
+import com.malkos.poppin.integration.houzz.entities.HouzzInventoryPojo;
 import com.malkos.poppin.integration.houzz.entities.HouzzUnavailableInventories;
 import com.malkos.poppin.integration.houzz.entities.IntegrationError;
-import com.malkos.poppin.integration.houzz.entities.InventoryItemPojo;
+import com.malkos.poppin.integration.houzz.entities.InventoryPojo;
 import com.malkos.poppin.integration.houzz.entities.NSRrequestDetails;
 import com.malkos.poppin.integration.houzz.entities.RetailerAbstract;
 import com.malkos.poppin.integration.houzz.entities.RetailerManager;
@@ -59,22 +61,22 @@ public class HouzzInventoryUpdateFlowService implements IInventoryUpdateFlowServ
 		//1. Retrieve inventoryMapping
 		List<LineItemIntegrationIdentifierDAO> lineItemDAOs = persistenceManager.getHouzzAssortment();
 		//2. Retrieve updated inventory quantities		
-		Map<String,List> inventoryTypeClassToInventoryListMap = null;
+		Map<String,InventoryPojo> internalIdToInventoryMap = null;
 		String messagePath = null;
 		try {
-			inventoryTypeClassToInventoryListMap = netsuiteOperationsManager.loadHouzzInventory(lineItemDAOs);			
+			internalIdToInventoryMap = netsuiteOperationsManager.loadHouzzInventory(lineItemDAOs);			
 		} catch (NetsuiteOperationException e) {
 			e.getRequestDetails().setRetailer(RetailerEnum.HOUZZ.toString());
 			IntegrationError error = ErrorMessageWrapper.wrapCommonError(e.getMessage(),e.getRequestDetails() );
 			ErrorsCollector.addCommonInventoryUpdateErrorMessage(error);
 			return;
 		}	
-		List<InventoryItemPojo> prepearedInventoryUpdateList;
-		if (inventoryTypeClassToInventoryListMap!=null){
+		//List<HouzzInventoryPojo> prepearedInventoryUpdateList;
+		if (internalIdToInventoryMap!=null){
 			//3. Generating inventory messages
-			prepearedInventoryUpdateList = prepeareInventoryUpdateList(inventoryTypeClassToInventoryListMap);		
+			//prepearedInventoryUpdateList = prepeareInventoryUpdateList(inventoryTypeClassToInventoryListMap);		
 			try {
-				messagePath = csvMessageGenerator.generateMessage(prepearedInventoryUpdateList);				
+				messagePath = csvMessageGenerator.generateMessage(internalIdToInventoryMap.values());				
 			} catch (CsvGenerationException e) {
 				NSRrequestDetails details = new NSRrequestDetails();
 				details.setRetailer(RetailerEnum.HOUZZ.toString());
@@ -82,7 +84,7 @@ public class HouzzInventoryUpdateFlowService implements IInventoryUpdateFlowServ
 				ErrorsCollector.addCommonInventoryUpdateErrorMessage(error);
 				return;
 			}
-			HouzzUnavailableInventories unavailableInventories = extractUnavailableInventories(prepearedInventoryUpdateList);	
+			HouzzUnavailableInventories unavailableInventories = extractUnavailableInventories(internalIdToInventoryMap.values());	
 			String message = buildNotificationEmail(unavailableInventories);
 			String mailSubject = buildNotificationEmailSubject();
 			try {
@@ -123,8 +125,8 @@ public class HouzzInventoryUpdateFlowService implements IInventoryUpdateFlowServ
 					"<td style=\"border:1px solid black;\"><b>SKU</b></td><td style=\"border:1px solid black;\"><b>Price</b></td><td style=\"border:1px solid black;\">" +
 					"<b>Quantity</b></td><td style=\"border:1px solid black;\"><b>Status</b></td><td style=\"border:1px solid black;\">" +
 					"<b>Keywords</b></td><td style=\"border:1px solid black;\"><b>Manufacturer</b></td><td style=\"border:1px solid black;\"><b>MSRP</b></td></tr>";
-			for (HouzzInventoryItemPojo iiPojo:unavailableInventories.getInactiveItemList()){
-				inactiveItemsMessage+="<tr><td style=\"border:1px solid black;\">"+iiPojo.getSKU()+"</td><td style=\"border:1px solid black;\">"+
+			for (HouzzInventoryPojo iiPojo:unavailableInventories.getInactiveItemList()){
+				inactiveItemsMessage+="<tr><td style=\"border:1px solid black;\">"+iiPojo.getSku()+"</td><td style=\"border:1px solid black;\">"+
 						basicDecimalFormat.format(iiPojo.getPrice())+"</td><td style=\"border:1px solid black;\">"+basicWholeDecimalFormat.format(iiPojo.getCorrectedProperties().getQuantity())+"</td>" +
 						"<td style=\"border:1px solid black;\">"+"Inactive"+"</td><td style=\"border:1px solid black;\"></td><td style=\"border:1px solid black;\">Poppin</td>" +
 						"<td style=\"border:1px solid black;\">"+basicDecimalFormat.format(iiPojo.getPrice())+"</td></tr>";					
@@ -137,8 +139,8 @@ public class HouzzInventoryUpdateFlowService implements IInventoryUpdateFlowServ
 					"<td style=\"border:1px solid black;\"><b>SKU</b></td><td style=\"border:1px solid black;\"><b>Price</b></td><td style=\"border:1px solid black;\">" +
 					"<b>Quantity</b></td><td style=\"border:1px solid black;\"><b>Status</b></td><td style=\"border:1px solid black;\"><b>Keywords</b></td>" +
 					"<td style=\"border:1px solid black;\"><b>Manufacturer</b></td><td style=\"border:1px solid black;\"><b>MSRP</b></td></tr>";			
-			for (HouzzInventoryItemPojo iiPojo:unavailableInventories.getLowQuantityItemList()){				
-				lowQuantityItemsMessage+="<tr><td style=\"border:1px solid black;\">"+iiPojo.getSKU()+"</td><td style=\"border:1px solid black;\">"+basicDecimalFormat.format(iiPojo.getPrice())+"</td>" +
+			for (HouzzInventoryPojo iiPojo:unavailableInventories.getLowQuantityItemList()){				
+				lowQuantityItemsMessage+="<tr><td style=\"border:1px solid black;\">"+iiPojo.getSku()+"</td><td style=\"border:1px solid black;\">"+basicDecimalFormat.format(iiPojo.getPrice())+"</td>" +
 						"<td style=\"border:1px solid black;\">"+basicWholeDecimalFormat.format(iiPojo.getCorrectedProperties().getQuantity())+"</td><td style=\"border:1px solid black;\">"+
 						"Inactive"+"</td><td style=\"border:1px solid black;\"></td><td style=\"border:1px solid black;\">Poppin</td><td style=\"border:1px solid black;\">"+basicDecimalFormat.format(iiPojo.getPrice())+"</td></tr>";					
 			}	
@@ -177,45 +179,13 @@ public class HouzzInventoryUpdateFlowService implements IInventoryUpdateFlowServ
 				}
 			}
 		}	
-	}
-		// here we prepare general inventory list that are ready for generating Inventory Update Messages
-	private List<InventoryItemPojo> prepeareInventoryUpdateList(Map<String, List> inventoryTypeClassToInventoryListMap) {
-			List<HouzzInventoryItemPojo> invPojoList = inventoryTypeClassToInventoryListMap.get(HouzzInventoryItemPojo.class.getName());
-			List<HouzzInventoryKitPojo> kitPojoList = inventoryTypeClassToInventoryListMap.get(HouzzInventoryKitPojo.class.getName());
-			
-			List<InventoryItemPojo> prepearedInventoryList = new ArrayList<InventoryItemPojo>();
-			prepearedInventoryList.addAll(invPojoList);
-			
-			for (HouzzInventoryKitPojo invKitPojo:kitPojoList){
-				HouzzInventoryItemPojo invItem = new HouzzInventoryItemPojo();
-				invItem.setInternalId(invKitPojo.getNsInternalId());
-				invItem.setQtyAvailable(invKitPojo.getQtyAvailable());
-				invItem.setSKU(invKitPojo.getSKU());
-				invItem.setPrice(invKitPojo.getPrice());
-				invItem.setWrongConfigured(invKitPojo.isWrongConfigured());
-				if (invKitPojo.isInactive()){
-					invItem.setInactive(true);
-				} else {
-					boolean hasInactiveItems=false;
-					for (HouzzInventoryKitSubItemPojo subItem:invKitPojo.getSubItemsList()){
-						if (subItem.isInactive()){
-							hasInactiveItems=true;
-							break;
-						}
-					}
-					invItem.setInactive(hasInactiveItems);
-				}				
-				prepearedInventoryList.add(invItem);
-			}
-			
-			return prepearedInventoryList;
-		}
+	}	
 		
-	private HouzzUnavailableInventories extractUnavailableInventories(List<InventoryItemPojo> prepearedInventoryItemPojoList){
+	private HouzzUnavailableInventories extractUnavailableInventories(Collection<InventoryPojo> prepearedInventoryItemPojoList){
 			HouzzUnavailableInventories result = new HouzzUnavailableInventories();
-			for (InventoryItemPojo iiPojoBasic:prepearedInventoryItemPojoList){
-				if (iiPojoBasic instanceof HouzzInventoryItemPojo){
-					HouzzInventoryItemPojo iiPojo = (HouzzInventoryItemPojo)iiPojoBasic;
+			for (InventoryPojo iiPojoBasic:prepearedInventoryItemPojoList){
+				if (iiPojoBasic instanceof HouzzInventoryPojo){
+					HouzzInventoryPojo iiPojo = (HouzzInventoryPojo)iiPojoBasic;
 					if (!iiPojo.isWrongConfigured()){
 						if (iiPojo.isInactive()){
 							result.getInactiveItemList().add(iiPojo);

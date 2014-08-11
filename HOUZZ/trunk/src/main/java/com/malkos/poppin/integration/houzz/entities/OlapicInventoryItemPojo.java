@@ -1,6 +1,6 @@
 package com.malkos.poppin.integration.houzz.entities;
 
-public class OlapicInventoryItemPojo extends InventoryItemPojo{
+public class OlapicInventoryItemPojo extends InventoryPojo{
 	private String displayName;
 	private String itemUrl;	
 	private String itemDisplayImage;

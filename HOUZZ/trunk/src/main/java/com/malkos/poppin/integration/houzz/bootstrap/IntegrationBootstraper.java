@@ -30,13 +30,13 @@ public class IntegrationBootstraper {
 			e.printStackTrace();
 		}*/
 		
-		/*OlapicInventoryUpdateFlowScheduller invUpdateOlapic = new OlapicInventoryUpdateFlowScheduller();
+		OlapicInventoryUpdateFlowScheduller invUpdateOlapic = new OlapicInventoryUpdateFlowScheduller();
 		try {
 			invUpdateOlapic.execute(null);
 		} catch (JobExecutionException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}*/
+		}
 		
 		/*PushFilesToStorageScheduller pushFiles = new PushFilesToStorageScheduller();
 		try {

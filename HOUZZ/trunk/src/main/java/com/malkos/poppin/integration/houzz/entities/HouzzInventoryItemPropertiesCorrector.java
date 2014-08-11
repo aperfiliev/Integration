@@ -3,7 +3,7 @@ package com.malkos.poppin.integration.houzz.entities;
 public class HouzzInventoryItemPropertiesCorrector implements IInventoryItemPropertiesCorrector{
 
 	@Override
-	public HouzzItemCorrectedProperties correctItemProperties(HouzzInventoryItemPojo item) {
+	public HouzzItemCorrectedProperties correctItemProperties(HouzzInventoryPojo item) {
 		HouzzItemCorrectedProperties correctedProperties = new HouzzItemCorrectedProperties();
 		double correctedQty;
 		boolean correctedInactiveState;

@@ -6,12 +6,13 @@ import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
 import com.malkos.poppin.integration.houzz.bootstrap.GlobalPropertiesProvider;
 import com.malkos.poppin.integration.houzz.entities.HouzzInventoryItemPojo;
-import com.malkos.poppin.integration.houzz.entities.InventoryItemPojo;
+import com.malkos.poppin.integration.houzz.entities.InventoryPojo;
 import com.malkos.poppin.integration.houzz.entities.OlapicInventoryItemPojo;
 import com.malkos.poppin.integration.houzz.entities.RetailerAbstract;
 import com.malkos.poppin.integration.houzz.entities.RetailerManager;
@@ -24,7 +25,7 @@ public class OlapicInventoryUpdateMessageGenerator implements ICsvMessageGenerat
 
 	@SuppressWarnings("unused")
 	@Override
-	public String generateMessage(List<InventoryItemPojo> prepearedInventoryList) throws CsvGenerationException {
+	public String generateMessage(Collection<InventoryPojo> prepearedInventoryList) throws CsvGenerationException {
 		 PrintWriter printWriter = null;
 		 String filePath = null;
 		 SimpleDateFormat basicDatePlusTimeDashedFormat = new SimpleDateFormat("MMddyyyyHHmm");		
@@ -37,7 +38,7 @@ public class OlapicInventoryUpdateMessageGenerator implements ICsvMessageGenerat
 	            	 throw new CsvGenerationException("Couldn't generate file "+fileName);
 	            }
 	            printWriter.println("Internal ID,Display Name,Item URL,Internal ID,Item Display Image");
-	            for (InventoryItemPojo invItemPojoBasic : prepearedInventoryList){	
+	            for (InventoryPojo invItemPojoBasic : prepearedInventoryList){	
 	            	if (invItemPojoBasic instanceof OlapicInventoryItemPojo){
 	            		OlapicInventoryItemPojo invItemPojo = (OlapicInventoryItemPojo)invItemPojoBasic;
 	            		printWriter.println(invItemPojo.getInternalId()+","+invItemPojo.getDisplayName()+","+invItemPojo.getItemUrl()+","+invItemPojo.getInternalId()+","+invItemPojo.getItemDisplayImage());

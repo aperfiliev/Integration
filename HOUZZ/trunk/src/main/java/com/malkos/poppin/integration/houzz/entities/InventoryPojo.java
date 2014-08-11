@@ -1,6 +1,6 @@
 package com.malkos.poppin.integration.houzz.entities;
 
-public abstract class InventoryItemPojo {
+public class InventoryPojo {
 	private String internalId;
 	
 	public String getInternalId(){

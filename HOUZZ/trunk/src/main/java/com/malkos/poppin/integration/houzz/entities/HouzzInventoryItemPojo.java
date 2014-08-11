@@ -1,51 +1,35 @@
 package com.malkos.poppin.integration.houzz.entities;
 
-public class HouzzInventoryItemPojo extends InventoryItemPojo {	
-	private String sku;
-	private double qtyAvailable;
-	private double price;
-	private boolean inactive;
-	private boolean wrongConfigured = false;
-	private IInventoryItemPropertiesCorrector propertiesCorrector;
+import java.util.List;
+
+public class HouzzInventoryItemPojo extends HouzzInventoryPojo {	
 	
+	private List<LocationQuantitiesAvailiable> locQtyList;
+	
+	private String preferedLocationId;
 	public HouzzInventoryItemPojo(){
 		propertiesCorrector = new HouzzInventoryItemPropertiesCorrector();
-	}		
-	public String getSKU() {
-		return sku;
-	}
-	public void setSKU(String sku) {
-		this.sku = sku;
-	}
+	}	
+	@Override
 	public double getQtyAvailable() {
-		return qtyAvailable;
-	}
-	public void setQtyAvailable(double qtyAvailable) {
-		this.qtyAvailable = qtyAvailable;
-	}
-	public double getPrice() {
-		return price;
-	}
-	public void setPrice(double price) {
-		this.price = price;
+		for (LocationQuantitiesAvailiable locQty:locQtyList){
+			if (locQty.getLocationInternalId().equalsIgnoreCase(getPreferedLocationId())){
+				return locQty.getLocationQtyAvailiable();
+			}
+		}
+		return 0d;
 	}	
-	public HouzzItemCorrectedProperties getCorrectedProperties(){
-		return propertiesCorrector.correctItemProperties(this);
+	
+	public List<LocationQuantitiesAvailiable> getLocQtyList() {
+		return locQtyList;
 	}
-
-	public boolean isInactive() {
-		return inactive;
+	public void setLocQtyList(List<LocationQuantitiesAvailiable> locQtyList) {
+		this.locQtyList = locQtyList;
 	}
-
-	public void setInactive(boolean inactive) {
-		this.inactive = inactive;
+	public String getPreferedLocationId() {
+		return preferedLocationId;
 	}
-
-	public boolean isWrongConfigured() {
-		return wrongConfigured;
+	public void setPreferedLocationId(String preferedLocationId) {
+		this.preferedLocationId = preferedLocationId;
 	}
-
-	public void setWrongConfigured(boolean wrongConfigured) {
-		this.wrongConfigured = wrongConfigured;
-	}	
 }

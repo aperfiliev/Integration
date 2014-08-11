@@ -3,68 +3,46 @@ package com.malkos.poppin.integration.houzz.entities;
 import java.util.Arrays;
 import java.util.List;
 
-public class HouzzInventoryKitPojo {
-	private String nsInternalId;
-	private String sku;
-	private double price; 
-	private boolean inactive;
-	private boolean wrongConfigured = false;
+public class HouzzInventoryKitPojo extends HouzzInventoryPojo{	
 	private List<HouzzInventoryKitSubItemPojo> subItemsList;
-	private String nsLocationId;
-	
-	public String getNsInternalId() {
-		return nsInternalId;
-	}
-	public void setNsInternalId(String nsInternalId) {
-		this.nsInternalId = nsInternalId;
-	}
-	public String getSKU() {
-		return this.sku;
-	}
-	public void setSKU(String sku) {
-		this.sku = sku;
-	}
+	private String nsLocationId;	
+	public HouzzInventoryKitPojo(){
+		propertiesCorrector = new HouzzInventoryItemPropertiesCorrector();
+	}	
 	public List<HouzzInventoryKitSubItemPojo> getSubItemsList() {
 		return subItemsList;
 	}
 	public void setSubItemsList(List<HouzzInventoryKitSubItemPojo> subItemsList) {
 		this.subItemsList = subItemsList;
 	}	
-	
+	@Override
 	public double getQtyAvailable(){
 		double[] arrayOfPotentialKits = new double[subItemsList.size()];
 		int counter = 0;
 		for (HouzzInventoryKitSubItemPojo subItem:subItemsList){
-			Double potentialAvailableKitsForSubItem = subItem.getQtyAvailable()/subItem.getQtyInKit();
+			Double potentialAvailableKitsForSubItem = subItem.getQtyAvailiable()/subItem.getQtyInKit();
 			arrayOfPotentialKits[counter] = potentialAvailableKitsForSubItem;
 			counter++;
 		}
 		Arrays.sort(arrayOfPotentialKits);		
 		return Math.floor(arrayOfPotentialKits[0]);
-	}	
-	
-	public double getPrice() {
-		return price;
 	}
-	public void setPrice(double price) {
-		this.price = price;
-	}
-	public boolean isInactive() {
-		return inactive;
-	}
-	public void setInactive(boolean inactive) {
-		this.inactive = inactive;
+	@Override
+	public boolean isInactive(){
+		if (inactive){
+			return true;
+		}
+		for (HouzzInventoryKitSubItemPojo subItem:subItemsList){
+			if (subItem.isInactive()){
+				return true;
+			}
+		}
+		return false;
 	}
 	public String getNsLocationId() {
 		return nsLocationId;
 	}
 	public void setNsLocationId(String nsLocationId) {
 		this.nsLocationId = nsLocationId;
-	}
-	public boolean isWrongConfigured() {
-		return wrongConfigured;
-	}
-	public void setWrongConfigured(boolean wrongConfigured) {
-		this.wrongConfigured = wrongConfigured;
 	}
 }
