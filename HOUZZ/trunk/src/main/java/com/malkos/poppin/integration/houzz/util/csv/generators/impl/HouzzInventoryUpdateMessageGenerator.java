@@ -32,14 +32,12 @@ public class HouzzInventoryUpdateMessageGenerator implements ICsvMessageGenerato
 	    	 	filePath = GlobalPropertiesProvider.getGlobalProperties().getCurrentOutgoingMessagesDirectory() + File.separator + "inventory_poppin" + basicDatePlusTimeDashedFormat.format(todayNow) + ".csv";;
 	            printWriter = new PrintWriter(filePath, "UTF-8");
 	            printWriter.println("SKU,Price,Quantity,Status,Keywords,Manufacturer,MSRP");
-	            for (InventoryPojo invItemBasicPojo : prepearedInventoryList){
-	            	if (invItemBasicPojo instanceof HouzzInventoryItemPojo){
-	            		HouzzInventoryItemPojo invItemPojo = (HouzzInventoryItemPojo)invItemBasicPojo;
-	            		if (!invItemPojo.isWrongConfigured()){
-		            		String status = invItemPojo.getCorrectedProperties().isInactive() ? "Inactive":"Active";
-			            	printWriter.println(invItemPojo.getSku()+","+doublePrecision.format(invItemPojo.getPrice())+","+decimalWholeNumberFormat.format(invItemPojo.getCorrectedProperties().getQuantity())+","+status+",,"+"Poppin"+","+doublePrecision.format(invItemPojo.getPrice()));
-		            	}
-	            	}	            		            	
+	            for (InventoryPojo invItemBasicPojo : prepearedInventoryList){	            	
+            		HouzzInventoryPojo invItemPojo = (HouzzInventoryPojo)invItemBasicPojo;
+            		if (!invItemPojo.isWrongConfigured()){
+	            		String status = invItemPojo.getCorrectedProperties().isInactive() ? "Inactive":"Active";
+		            	printWriter.println(invItemPojo.getSku()+","+doublePrecision.format(invItemPojo.getPrice())+","+decimalWholeNumberFormat.format(invItemPojo.getCorrectedProperties().getQuantity())+","+status+",,"+"Poppin"+","+doublePrecision.format(invItemPojo.getPrice()));
+	            	}	            		            		            	
 	            }
 	     } catch (FileNotFoundException fileNotFoundException) {
 	    	 throw new CsvGenerationException(fileNotFoundException.getMessage());
