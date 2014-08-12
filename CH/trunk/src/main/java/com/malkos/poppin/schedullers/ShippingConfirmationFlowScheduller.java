@@ -111,7 +111,6 @@ public class ShippingConfirmationFlowScheduller {
 			if(sBuilder.length() > 0){						
 				try {
 					notificationSender.sendEmail(sBuilder.toString(), attachments);
-					throw new MessagingException("I am a email resend test.");
 				} catch (MessagingException e){
 					logger.error(e.getMessage());
 					persistenceManager.persistNotificationEmail(sBuilder.toString(), attachments);
