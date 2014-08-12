@@ -4,7 +4,7 @@
 
   <groupId>com.malkos.poppin.integration</groupId>
   <artifactId>Poppin_Staples_Integration</artifactId>
-  <version>1</version>
+  <version>AUG_12_14</version>
   <packaging>jar</packaging>
 
   <name>Poppin_Staples_Integration</name>
