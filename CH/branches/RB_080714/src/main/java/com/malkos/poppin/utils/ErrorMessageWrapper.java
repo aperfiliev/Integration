@@ -43,7 +43,9 @@ public class ErrorMessageWrapper {
 		commonErrorsMap.put("Connection timed out: connect", new ErrorMessageWraped("The integration is not able to establish a connection with the EDI Vendor's FTP. We will attempt to connect again shortly.\r\n\r\n",false,false));
 		commonErrorsMap.put("Reply String : 530 Login or password incorrect!", new ErrorMessageWraped("The integration is not able to establish a connection with the EDI Vendor's FTP. We will attempt to connect again shortly.\r\n\r\n",false,false));
 		//commonErrorsMap.put("Reason: ftp1.commercehub.com", new ErrorMessageWraped("The integration is not able to establish a connection with the EDI Vendor's FTP. We will attempt to connect again shortly.\r\n\r\n",false,false));
-		//commonErrorsMap.put("Auth fail", new ErrorMessageWraped("The integration is not able to establish a connection with the EDI Vendor's FTP. We will attempt to connect again shortly.\r\n\r\n",false,false));		
+		//commonErrorsMap.put("Auth fail", new ErrorMessageWraped("The integration is not able to establish a connection with the EDI Vendor's FTP. We will attempt to connect again shortly.\r\n\r\n",false,false));
+		commonErrorsMap.put("Connection refused: connect", new ErrorMessageWraped("We are unable to connect to the Commerce Hub FTP. We will try again shortly and upon establishing a connection we will reprocess any items that were not originally processed.\r\n\r\n",false,false));
+		
 		
 		orderErrorsMap.put("An unexpected error occurred. Error ID:",new ErrorMessageWraped("There was an error when contating NetSuite. Contact NetSuite support and provide them with the following error ID for further investigation:\r\nNetSuite Error ID: <errorId>\r\nDate: <requestTime>\r\nInclude the attached XML request <request>\r\n\r\n",true,true)); 
 		orderErrorsMap.put("Invalid item reference key", new ErrorMessageWraped("We are unable to create an order in NetSuite due to item <itemId> being either inactive or unavailable in NetSuite. Confirm if the following item is valid in NetSuite:\r\nItem: <itemId>\r\nItem URL: <itemURL>\r\n\r\n", false, false));
