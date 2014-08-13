@@ -93,7 +93,7 @@ PersistenceManager persistenceManager;
 			if(sBuilder.length() > 0){	
 				try {
 					notificationSender.sendEmail(sBuilder.toString(), null);
-				} catch (MessagingException | MailSendException e1) {
+				} catch (Exception e1) {
 					logger.error(e1.getMessage());
 					persistenceManager.persistNotificationEmail(sBuilder.toString(), null);
 				}				
@@ -105,7 +105,7 @@ PersistenceManager persistenceManager;
 				logger.debug(e.getMessage(), e);
 			try {
 				notificationSender.sendEmail(errorMessage, null);
-			} catch (MessagingException | MailSendException | MailAuthenticationException e1) {
+			} catch (Exception e1) {
 				logger.error(e1.getMessage());
 				persistenceManager.persistNotificationEmail(errorMessage, null);
 			}

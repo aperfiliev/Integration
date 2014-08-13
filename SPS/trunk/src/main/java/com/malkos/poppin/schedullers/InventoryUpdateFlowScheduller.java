@@ -92,7 +92,7 @@ public class InventoryUpdateFlowScheduller {
 				if(sBuilder.length() > 0){
 					try {
 						notificationSender.sendEmail(sBuilder.toString(), attachments);	
-					} catch (MessagingException | MailSendException | MailAuthenticationException e){
+					} catch (Exception e){
 						logger.error(e.getMessage());
 						persistenceManager.persistNotificationEmail(sBuilder.toString(), attachments);
 					}	
@@ -104,7 +104,7 @@ public class InventoryUpdateFlowScheduller {
 					logger.debug(e.getMessage(), e);
 				try {
 					notificationSender.sendEmail(errorMessage, null);
-				} catch (MessagingException | MailSendException | MailAuthenticationException e1) {
+				} catch (Exception e1) {
 					logger.error(e1.getMessage());
 					persistenceManager.persistNotificationEmail(errorMessage, null);
 				}

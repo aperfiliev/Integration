@@ -79,7 +79,7 @@ public class CancelledOrdersFlowScheduller {
 					String errorMessage = "ERROR(s) has ocurred while executing the Cancelled/closed orders processing flow. Error message(s):\r\n" + sBuilder.toString();
 					try {
 						notificationSender.sendEmail(errorMessage, attachments);	
-					} catch (MessagingException | MailSendException | MailAuthenticationException e){
+					} catch (Exception e){
 						logger.error(e.getMessage());
 						persistenceManager.persistNotificationEmail(errorMessage, attachments);
 					}
@@ -91,7 +91,7 @@ public class CancelledOrdersFlowScheduller {
 					logger.debug(e.getMessage(), e);
 				try {
 					notificationSender.sendEmail(errorMessage, null);
-				} catch (MessagingException | MailSendException | MailAuthenticationException e1) {
+				} catch (Exception e1) {
 					logger.error(e1.getMessage());
 					persistenceManager.persistNotificationEmail(errorMessage, null);
 				}
