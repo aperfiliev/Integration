@@ -72,7 +72,7 @@ PersistenceManager persistenceManager;
 					notificationSender.sendEmail(text, attachmentList);
 					neDao.setStatus(EmailMessageStatus.SENT);				
 					sentEmails.add(neDao);
-				} catch (MessagingException | MailSendException | MailAuthenticationException e){
+				} catch (Exception e){
 					logger.error(e.getMessage());
 				}
 			}

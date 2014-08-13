@@ -111,7 +111,7 @@ public class ShippingConfirmationFlowScheduller {
 			if(sBuilder.length() > 0){						
 				try {
 					notificationSender.sendEmail(sBuilder.toString(), attachments);
-				} catch (MessagingException e){
+				} catch (Exception e){
 					logger.error(e.getMessage());
 					persistenceManager.persistNotificationEmail(sBuilder.toString(), attachments);
 				}									
@@ -126,7 +126,7 @@ public class ShippingConfirmationFlowScheduller {
 			//mailSender.send(mailMessage);
 			try {
 				notificationSender.sendEmail(errorMessage, null);
-			} catch (MessagingException e1) {
+			} catch (Exception e1) {
 				logger.error(e1.getMessage());
 				persistenceManager.persistNotificationEmail(errorMessage, null);
 			}

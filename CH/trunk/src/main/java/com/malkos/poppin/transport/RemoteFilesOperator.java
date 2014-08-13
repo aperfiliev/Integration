@@ -75,7 +75,8 @@ public class RemoteFilesOperator implements IRemoteFilesOperator{
 				} catch (Exception e) {
 					String errorMessage = "Could not send " + fileToSend.getPath() + " to CH. Reason :" + e.getMessage();
 					logger.warn(errorMessage);
-					ErrorsCollector.addCommonRemoteFileOperatorErrorMessage(new CHIntegrationError(errorMessage));
+					CHIntegrationError error =  ErrorMessageWrapper.wrapCommonError(errorMessage);
+					ErrorsCollector.addCommonRemoteFileOperatorErrorMessage(error);
 				}
 				finally{
 					if(null != streamToSend)
@@ -100,7 +101,8 @@ public class RemoteFilesOperator implements IRemoteFilesOperator{
 				String errorMessage = "Could not close connection to remote file manager. Reason: " + e.getMessage();
 				logger.warn(errorMessage);
 				//ErrorsCollector.addCommonRemoteFileOperatorErrorMessage(errorMessage);
-				ErrorsCollector.addCommonRemoteFileOperatorErrorMessage(new CHIntegrationError(errorMessage));
+				CHIntegrationError error =  ErrorMessageWrapper.wrapCommonError(errorMessage);
+				ErrorsCollector.addCommonRemoteFileOperatorErrorMessage(error);
 			}
 		}
 		return sentMessagessIdList;
@@ -124,10 +126,11 @@ public class RemoteFilesOperator implements IRemoteFilesOperator{
 					ByteArrayInputStream bytesStream = new ByteArrayInputStream(readedBytes);
 					incomingFilesStreamList.put(formattedFileName, bytesStream);				
 				} catch (Exception e) {
-					String errorMessage = "Could not read file " + fileName + " from remote file manager. Reason : " + e.getMessage();
+					String errorMessage = "Could not read file " + fileName + " from remote file manager. Reason: " + e.getMessage();
 					logger.error(errorMessage);
 					//ErrorsCollector.addCommonRemoteFileOperatorErrorMessage(errorMessage);
-					ErrorsCollector.addCommonRemoteFileOperatorErrorMessage(new CHIntegrationError(errorMessage));
+					CHIntegrationError error =  ErrorMessageWrapper.wrapCommonError(errorMessage);
+					ErrorsCollector.addCommonRemoteFileOperatorErrorMessage(error);
 				}
 				finally{
 					incomingFileStream.close();
@@ -139,7 +142,7 @@ public class RemoteFilesOperator implements IRemoteFilesOperator{
 			String errorMessage = "Could not retrieve files from remote file manager. Reason: " + e.getMessage();
 			logger.warn(errorMessage);
 			//ErrorsCollector.addCommonRemoteFileOperatorErrorMessage(errorMessage);
-			CHIntegrationError error =  ErrorMessageWrapper.wrapCommonError(e.getMessage());
+			CHIntegrationError error =  ErrorMessageWrapper.wrapCommonError(errorMessage);
 			ErrorsCollector.addCommonRemoteFileOperatorErrorMessage(error);
 		}
 		finally{
@@ -149,7 +152,8 @@ public class RemoteFilesOperator implements IRemoteFilesOperator{
 				String errorMessage = "Could not close connection to remote file manager. Reason: " + e.getMessage();
 				logger.warn(errorMessage);
 				//ErrorsCollector.addCommonRemoteFileOperatorErrorMessage(errorMessage);
-				ErrorsCollector.addCommonRemoteFileOperatorErrorMessage(new CHIntegrationError(errorMessage));
+				CHIntegrationError error =  ErrorMessageWrapper.wrapCommonError(errorMessage);
+				ErrorsCollector.addCommonRemoteFileOperatorErrorMessage(error);
 			}
 		}
 		return incomingFilesStreamList;
@@ -173,7 +177,8 @@ public class RemoteFilesOperator implements IRemoteFilesOperator{
 				logger.info("Removing failed file from collection to not process it anymore.");
 				fileNameToFileStreamMap.remove(entry.getKey());
 				//ErrorsCollector.addCommonRemoteFileOperatorErrorMessage(errorMessage);
-				ErrorsCollector.addCommonRemoteFileOperatorErrorMessage(new CHIntegrationError(errorMessage));
+				CHIntegrationError error =  ErrorMessageWrapper.wrapCommonError(errorMessage);
+				ErrorsCollector.addCommonRemoteFileOperatorErrorMessage(error);
 			}
 			finally{
 				try {
@@ -183,7 +188,8 @@ public class RemoteFilesOperator implements IRemoteFilesOperator{
 					String errorMessage = "Could not close file output stream for PO file. Reason : " + e.getMessage();
 					logger.warn(errorMessage);
 					//ErrorsCollector.addCommonRemoteFileOperatorErrorMessage(errorMessage);
-					ErrorsCollector.addCommonRemoteFileOperatorErrorMessage(new CHIntegrationError(errorMessage));
+					CHIntegrationError error =  ErrorMessageWrapper.wrapCommonError(errorMessage);
+					ErrorsCollector.addCommonRemoteFileOperatorErrorMessage(error);
 				}
 			}
 		}
