@@ -599,7 +599,7 @@ public class NetsuiteOperationsManager implements INetsuiteOperationsManager {
 		CustomFieldList customBodyList = new CustomFieldList();
 		//CustomFieldRef[] customBodyFields = new CustomFieldRef[3];
 		CustomFieldRef[] customBodyFields = new CustomFieldRef[1];
-		customBodyFields[0] = new BooleanCustomFieldRef("custbody_is_urgent", null, true);
+		customBodyFields[0] = new BooleanCustomFieldRef(null, "custbody_is_urgent", true);
 		//customBodyFields[0] = new StringCustomFieldRef("custbody14",Integer.toString(poPojo.getOrderId()));
 		//customBodyFields[1] = new BooleanCustomFieldRef("custbody_is_urgent", true);
 		//customBodyFields[2] = new StringCustomFieldRef("custbodypartner_person_place_id", poPojo.getShipToPartnerPersonPlaceId());
@@ -655,10 +655,10 @@ public class NetsuiteOperationsManager implements INetsuiteOperationsManager {
 			/* vendor line # , merchant_SKU*/
 			CustomFieldList customList = new CustomFieldList();
 			List<CustomFieldRef> customFieldRefList = new ArrayList<CustomFieldRef>();
-			customFieldRefList.add(new StringCustomFieldRef("custcol11", null, orderItemPo.getVendorlineNumber()));
+			customFieldRefList.add(new StringCustomFieldRef(null, "custcol11", orderItemPo.getVendorlineNumber()));
 			
 			if(orderItemPo.getMerchantSKU() != null)
-				customFieldRefList.add(new StringCustomFieldRef("custcolmerchant_sku", null, orderItemPo.getMerchantSKU()));
+				customFieldRefList.add(new StringCustomFieldRef(null, "custcolmerchant_sku", orderItemPo.getMerchantSKU()));
 			CustomFieldRef[] customFields = new CustomFieldRef[customFieldRefList.size()];
 			customFieldRefList.toArray(customFields);
 			
@@ -804,7 +804,7 @@ public class NetsuiteOperationsManager implements INetsuiteOperationsManager {
 								for (CustomFieldRef cfr : itemFulfillmentsCustomFieldRefs){
 									if (cfr instanceof StringCustomFieldRef){
 										StringCustomFieldRef scfr = (StringCustomFieldRef)cfr;
-										if (scfr.getInternalId().equalsIgnoreCase("custcol_tracking_number")){
+										if (scfr.getScriptId().equalsIgnoreCase("custcol_tracking_number")){
 											orderItem.setTrackingNumber(scfr.getValue());
 										}
 									}								
@@ -901,9 +901,9 @@ public class NetsuiteOperationsManager implements INetsuiteOperationsManager {
 		trRowBasic.setTranId(new SearchColumnStringField[]{new SearchColumnStringField()});
 		
 		SearchColumnCustomFieldList sccfl = new SearchColumnCustomFieldList();
-		SearchColumnStringCustomField merchantSKU = new SearchColumnStringCustomField("custcolmerchant_sku", null, null,  null);
+		SearchColumnStringCustomField merchantSKU = new SearchColumnStringCustomField("1475", "custcolmerchant_sku", null,  null);
 		
-		SearchColumnStringCustomField vendorLineNumber = new SearchColumnStringCustomField("custcol11", null,  null, null);
+		SearchColumnStringCustomField vendorLineNumber = new SearchColumnStringCustomField("1471", "custcol11", null, null);
 		sccfl.setCustomField(new SearchColumnCustomField[] { merchantSKU, vendorLineNumber});		
 		trRowBasic.setCustomFieldList(sccfl);
 		
@@ -1024,9 +1024,9 @@ public class NetsuiteOperationsManager implements INetsuiteOperationsManager {
 								for(SearchColumnCustomField sccf : searchCustomColumnField){
 									SearchColumnStringCustomField scsFielf = (SearchColumnStringCustomField)sccf;
 								
-									if(scsFielf.getInternalId().equalsIgnoreCase("custcolmerchant_sku"))
+									if(scsFielf.getScriptId().equalsIgnoreCase("custcolmerchant_sku"))
 										oiPojo.setMerchantSKU(scsFielf.getSearchValue());
-									else if(scsFielf.getInternalId().equalsIgnoreCase("custcol11"))
+									else if(scsFielf.getScriptId().equalsIgnoreCase("custcol11"))
 										oiPojo.setVendorlineNumber(scsFielf.getSearchValue());									
 								}
 							}							
@@ -1115,8 +1115,8 @@ public class NetsuiteOperationsManager implements INetsuiteOperationsManager {
 		invoiceRowBasicJoin.setTaxAmount(new SearchColumnDoubleField[]{new SearchColumnDoubleField()});
 		
 		SearchColumnCustomFieldList sccfl = new SearchColumnCustomFieldList();
-		SearchColumnStringCustomField merchantSKU = new SearchColumnStringCustomField("custcolmerchant_sku", null,  null, null);
-		SearchColumnStringCustomField vendorLineNumber = new SearchColumnStringCustomField("custcol11", null,  null, null);
+		SearchColumnStringCustomField merchantSKU = new SearchColumnStringCustomField(null, "custcolmerchant_sku", null, null);
+		SearchColumnStringCustomField vendorLineNumber = new SearchColumnStringCustomField(null, "custcol11",  null, null);
 		sccfl.setCustomField(new SearchColumnCustomField[] { merchantSKU, vendorLineNumber});
 		invoiceRowBasicJoin.setCustomFieldList(sccfl);
 		rowSearch.setBillingTransactionJoin(invoiceRowBasicJoin);		
@@ -1236,9 +1236,9 @@ public class NetsuiteOperationsManager implements INetsuiteOperationsManager {
 							for(SearchColumnCustomField sccf :  tsBiling.getCustomFieldList().getCustomField()){
 								SearchColumnStringCustomField scsFielf = (SearchColumnStringCustomField)sccf;
 								
-								if(scsFielf.getInternalId().equalsIgnoreCase("billingtransaction_custcolmerchant_sku"))
+								if(scsFielf.getScriptId().equalsIgnoreCase("billingtransaction_custcolmerchant_sku"))
 									iiPojo.setMerchantSKU(scsFielf.getSearchValue());
-								else if(scsFielf.getInternalId().equalsIgnoreCase("billingtransaction_custcol11"))
+								else if(scsFielf.getScriptId().equalsIgnoreCase("billingtransaction_custcol11"))
 									iiPojo.setVendorlineNumber(scsFielf.getSearchValue());								
 							}
 							itemList.add(iiPojo);
@@ -1629,8 +1629,8 @@ public class NetsuiteOperationsManager implements INetsuiteOperationsManager {
 			String bnnStoreEmail = addressMappings.get(doc.getShipLocationNumber()).getEmail();
 			
 			CustomFieldRef[] fieldsArray = new CustomFieldRef[2];
-			fieldsArray[0] = new StringCustomFieldRef("custrecord_so_internal_id", null, doc.getAddSalesOrderResultPojo().getSoInternalId());
-			fieldsArray[1] = new StringCustomFieldRef("custrecord_store_email", null, bnnStoreEmail);
+			fieldsArray[0] = new StringCustomFieldRef(null, "custrecord_so_internal_id", doc.getAddSalesOrderResultPojo().getSoInternalId());
+			fieldsArray[1] = new StringCustomFieldRef(null, "custrecord_store_email", bnnStoreEmail);
 			CustomFieldList fields = new CustomFieldList();
 			fields.setCustomField(fieldsArray);
 			
