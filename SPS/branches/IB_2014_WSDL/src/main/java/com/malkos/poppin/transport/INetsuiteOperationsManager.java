@@ -15,8 +15,6 @@ import com.malkos.poppin.integration.retailers.IndigoRetailer;
 import com.malkos.poppin.integration.retailers.RetailerAbstract;
 import com.malkos.poppin.persistence.dao.LineItemIntegrationIdentifierDAO;
 import com.malkos.poppin.persistence.dao.PurchaseOrderDAO;
-import com.netsuite.webservices.platform.core_2013_1.RecordList;
-import com.netsuite.webservices.platform.core_2013_1.SearchRowList;
 
 public interface INetsuiteOperationsManager {
 	Map<String, String> loadProcessedPurchaseOrderNumbers(long lastProcessedPoNumber) throws NetsuiteOperationException;
