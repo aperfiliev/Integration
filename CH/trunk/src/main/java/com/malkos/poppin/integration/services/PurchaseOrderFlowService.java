@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.apache.axis.AxisFault;
 import org.apache.commons.io.IOUtils;
 import org.bouncycastle.openpgp.PGPException;
 import org.slf4j.Logger;
@@ -98,7 +99,7 @@ public class PurchaseOrderFlowService implements IPurchaseOrderFlowService {
 		}	
 		
 		List<IncomingMessageDAO> newMessagesDAO = persistanceManager.retrieveNewIncomingMessages();		
-		if (!newMessagesDAO.isEmpty()){			
+		if (!newMessagesDAO.isEmpty()){	
 			List<MessageBatchTransfer> successfullyProcessedBatches = processMessages(newMessagesDAO,popNumToInternalIdMap);			
 			List<PurchaseOrderPojo> ordersInBatch =  extractOrdersPojo(successfullyProcessedBatches);
 			generalOrderList.addAll(ordersInBatch);
@@ -248,7 +249,13 @@ public class PurchaseOrderFlowService implements IPurchaseOrderFlowService {
 					}
 				}
 				catch(Exception ex){
-					String errorMessage = "Failed to add sales order with PO # : " + po.getPoNumber() + ". " + ex.getMessage(); 
+					String errorMessage = "Failed to add sales order with PO # : " + po.getPoNumber() + ". "; 
+					if (ex instanceof AxisFault){
+						AxisFault fault = (AxisFault)ex;
+						errorMessage+=fault.getFaultReason();
+					} else{
+						errorMessage+= ex.getMessage();
+					}
 					logger.warn(errorMessage);
 					po.addException(errorMessage);					
 				}
