@@ -901,9 +901,9 @@ public class NetsuiteOperationsManager implements INetsuiteOperationsManager {
 		trRowBasic.setTranId(new SearchColumnStringField[]{new SearchColumnStringField()});
 		
 		SearchColumnCustomFieldList sccfl = new SearchColumnCustomFieldList();
-		SearchColumnStringCustomField merchantSKU = new SearchColumnStringCustomField("custcolmerchant_sku", "1475",  null,  null);
+		SearchColumnStringCustomField merchantSKU = new SearchColumnStringCustomField("custcolmerchant_sku","1475", null,  null);//1475
 		
-		SearchColumnStringCustomField vendorLineNumber = new SearchColumnStringCustomField("custcol11", "1471", null, null);
+		SearchColumnStringCustomField vendorLineNumber = new SearchColumnStringCustomField("custcol11", "1471",null, null);//1471
 		sccfl.setCustomField(new SearchColumnCustomField[] { merchantSKU, vendorLineNumber});		
 		trRowBasic.setCustomFieldList(sccfl);
 		
@@ -1115,8 +1115,8 @@ public class NetsuiteOperationsManager implements INetsuiteOperationsManager {
 		invoiceRowBasicJoin.setTaxAmount(new SearchColumnDoubleField[]{new SearchColumnDoubleField()});
 		
 		SearchColumnCustomFieldList sccfl = new SearchColumnCustomFieldList();
-		SearchColumnStringCustomField merchantSKU = new SearchColumnStringCustomField(null, "custcolmerchant_sku", null, null);
-		SearchColumnStringCustomField vendorLineNumber = new SearchColumnStringCustomField(null, "custcol11",  null, null);
+		SearchColumnStringCustomField merchantSKU = new SearchColumnStringCustomField("custcolmerchant_sku", "1475", null, null);
+		SearchColumnStringCustomField vendorLineNumber = new SearchColumnStringCustomField("custcol11", "1471", null, null);
 		sccfl.setCustomField(new SearchColumnCustomField[] { merchantSKU, vendorLineNumber});
 		invoiceRowBasicJoin.setCustomFieldList(sccfl);
 		rowSearch.setBillingTransactionJoin(invoiceRowBasicJoin);		
