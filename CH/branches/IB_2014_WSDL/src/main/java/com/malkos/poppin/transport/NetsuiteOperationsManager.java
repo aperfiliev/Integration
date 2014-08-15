@@ -3,7 +3,9 @@ package com.malkos.poppin.transport;
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.math.RoundingMode;
+import java.net.MalformedURLException;
 import java.net.SocketException;
+import java.net.URL;
 import java.rmi.RemoteException;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
@@ -22,6 +24,7 @@ import java.util.Map.Entry;
 
 import javassist.expr.Instanceof;
 
+import javax.xml.rpc.ServiceException;
 import javax.xml.soap.SOAPException;
 
 import org.apache.axis.AxisFault;
@@ -36,7 +39,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.w3c.dom.Document;
 
-import com.erpguru.netsuite.NetSuiteClient;
 import com.malkos.poppin.bootstrap.GlobalProperties;
 import com.malkos.poppin.bootstrap.GlobalPropertiesProvider;
 import com.malkos.poppin.entities.CHIntegrationError;
@@ -58,101 +60,194 @@ import com.malkos.poppin.utils.ErrorsCollector;
 import com.malkos.poppin.utils.SoapMessageType;
 import com.malkos.poppin.utils.SoapMessagesSaver;
 import com.malkos.poppin.utils.XmlParserUtil;
-import com.netsuite.webservices.lists.accounting_2012_1.InventoryItem;
-import com.netsuite.webservices.lists.accounting_2012_1.InventoryItemLocations;
-import com.netsuite.webservices.lists.accounting_2012_1.ItemMember;
-import com.netsuite.webservices.lists.accounting_2012_1.ItemSearch;
-import com.netsuite.webservices.lists.accounting_2012_1.ItemSearchAdvanced;
-import com.netsuite.webservices.lists.accounting_2012_1.ItemSearchRow;
-import com.netsuite.webservices.lists.accounting_2012_1.KitItem;
-import com.netsuite.webservices.lists.relationships_2012_1.Customer;
-import com.netsuite.webservices.lists.relationships_2012_1.CustomerAddressbook;
-import com.netsuite.webservices.lists.relationships_2012_1.CustomerAddressbookList;
-import com.netsuite.webservices.lists.relationships_2012_1.CustomerSearch;
-import com.netsuite.webservices.lists.relationships_2012_1.CustomerSearchAdvanced;
-import com.netsuite.webservices.lists.relationships_2012_1.CustomerSearchRow;
-import com.netsuite.webservices.platform.common_2012_1.CustomerSearchBasic;
-import com.netsuite.webservices.platform.common_2012_1.CustomerSearchRowBasic;
-import com.netsuite.webservices.platform.common_2012_1.ItemSearchBasic;
-import com.netsuite.webservices.platform.common_2012_1.ItemSearchRowBasic;
-import com.netsuite.webservices.platform.common_2012_1.LocationSearchBasic;
-import com.netsuite.webservices.platform.common_2012_1.TransactionSearchBasic;
-import com.netsuite.webservices.platform.common_2012_1.TransactionSearchRowBasic;
-import com.netsuite.webservices.platform.common_2012_1.types.Country;
-import com.netsuite.webservices.platform.common_2012_1.LocationSearchRowBasic;
-import com.netsuite.webservices.platform.core_2012_1.BooleanCustomFieldRef;
-import com.netsuite.webservices.platform.core_2012_1.CustomFieldList;
-import com.netsuite.webservices.platform.core_2012_1.CustomFieldRef;
-import com.netsuite.webservices.platform.core_2012_1.Passport;
-import com.netsuite.webservices.platform.core_2012_1.Record;
-import com.netsuite.webservices.platform.core_2012_1.RecordList;
-import com.netsuite.webservices.platform.core_2012_1.RecordRef;
-import com.netsuite.webservices.platform.core_2012_1.SearchColumnCustomField;
-import com.netsuite.webservices.platform.core_2012_1.SearchColumnCustomFieldList;
-import com.netsuite.webservices.platform.core_2012_1.SearchColumnDateField;
-import com.netsuite.webservices.platform.core_2012_1.SearchColumnDoubleField;
-import com.netsuite.webservices.platform.core_2012_1.SearchColumnSelectField;
-import com.netsuite.webservices.platform.core_2012_1.SearchColumnStringCustomField;
-import com.netsuite.webservices.platform.core_2012_1.SearchColumnStringField;
-import com.netsuite.webservices.platform.core_2012_1.SearchCustomFieldList;
-import com.netsuite.webservices.platform.core_2012_1.SearchEnumMultiSelectField;
-import com.netsuite.webservices.platform.core_2012_1.SearchMultiSelectField;
-import com.netsuite.webservices.platform.core_2012_1.SearchResult;
-import com.netsuite.webservices.platform.core_2012_1.SearchRow;
-import com.netsuite.webservices.platform.core_2012_1.SearchRowList;
-import com.netsuite.webservices.platform.core_2012_1.SearchStringField;
-import com.netsuite.webservices.platform.core_2012_1.SearchTextNumberField;
-import com.netsuite.webservices.platform.core_2012_1.Status;
-import com.netsuite.webservices.platform.core_2012_1.StatusDetail;
-import com.netsuite.webservices.platform.core_2012_1.StringCustomFieldRef;
-import com.netsuite.webservices.platform.core_2012_1.types.RecordType;
-import com.netsuite.webservices.platform.core_2012_1.types.SearchEnumMultiSelectFieldOperator;
-import com.netsuite.webservices.platform.core_2012_1.types.SearchMultiSelectFieldOperator;
-import com.netsuite.webservices.platform.core_2012_1.types.SearchStringFieldOperator;
-import com.netsuite.webservices.platform.core_2012_1.types.SearchTextNumberFieldOperator;
-import com.netsuite.webservices.platform.core_2012_1.SearchBooleanField;
-import com.netsuite.webservices.platform.core_2012_1.SearchColumnEnumSelectField;
-import com.netsuite.webservices.platform.core_2012_1.SearchColumnTextNumberField;
-import com.netsuite.webservices.platform.core_2012_1.SearchColumnBooleanField;
-import com.netsuite.webservices.platform.faults_2012_1.ExceededRecordCountFault;
-import com.netsuite.webservices.platform.faults_2012_1.ExceededRequestLimitFault;
-import com.netsuite.webservices.platform.faults_2012_1.ExceededRequestSizeFault;
-import com.netsuite.webservices.platform.faults_2012_1.ExceededUsageLimitFault;
-import com.netsuite.webservices.platform.faults_2012_1.InvalidCredentialsFault;
-import com.netsuite.webservices.platform.faults_2012_1.InvalidSessionFault;
-import com.netsuite.webservices.platform.faults_2012_1.UnexpectedErrorFault;
-import com.netsuite.webservices.platform.messages_2012_1.Preferences;
-import com.netsuite.webservices.platform.messages_2012_1.ReadResponse;
-import com.netsuite.webservices.platform.messages_2012_1.SearchPreferences;
-import com.netsuite.webservices.platform.messages_2012_1.WriteResponse;
-import com.netsuite.webservices.platform_2012_1.NetSuiteBindingStub;
-import com.netsuite.webservices.transactions.sales_2012_1.SalesOrder;
-import com.netsuite.webservices.transactions.sales_2012_1.SalesOrderItem;
-import com.netsuite.webservices.transactions.sales_2012_1.SalesOrderItemList;
-import com.netsuite.webservices.transactions.sales_2012_1.TransactionSearch;
-import com.netsuite.webservices.transactions.sales_2012_1.TransactionSearchAdvanced;
-import com.netsuite.webservices.transactions.sales_2012_1.TransactionSearchRow;
-import com.netsuite.webservices.transactions.sales_2012_1.types.SalesOrderOrderStatus;
-import com.netsuite.webservices.transactions.sales_2012_1.types.TransactionStatus;
+import com.netsuite.webservices.lists.accounting_2014_2.InventoryItem;
+import com.netsuite.webservices.lists.accounting_2014_2.InventoryItemLocations;
+import com.netsuite.webservices.lists.accounting_2014_2.ItemMember;
+import com.netsuite.webservices.lists.accounting_2014_2.ItemSearch;
+import com.netsuite.webservices.lists.accounting_2014_2.ItemSearchAdvanced;
+import com.netsuite.webservices.lists.accounting_2014_2.ItemSearchRow;
+import com.netsuite.webservices.lists.accounting_2014_2.KitItem;
+import com.netsuite.webservices.lists.relationships_2014_2.Customer;
+import com.netsuite.webservices.lists.relationships_2014_2.CustomerAddressbook;
+import com.netsuite.webservices.lists.relationships_2014_2.CustomerAddressbookList;
+import com.netsuite.webservices.lists.relationships_2014_2.CustomerSearch;
+import com.netsuite.webservices.lists.relationships_2014_2.CustomerSearchAdvanced;
+import com.netsuite.webservices.lists.relationships_2014_2.CustomerSearchRow;
+import com.netsuite.webservices.platform.common_2014_2.Address;
+import com.netsuite.webservices.platform.common_2014_2.CustomerSearchBasic;
+import com.netsuite.webservices.platform.common_2014_2.CustomerSearchRowBasic;
+import com.netsuite.webservices.platform.common_2014_2.ItemSearchBasic;
+import com.netsuite.webservices.platform.common_2014_2.ItemSearchRowBasic;
+import com.netsuite.webservices.platform.common_2014_2.LocationSearchBasic;
+import com.netsuite.webservices.platform.common_2014_2.TransactionSearchBasic;
+import com.netsuite.webservices.platform.common_2014_2.TransactionSearchRowBasic;
+import com.netsuite.webservices.platform.common_2014_2.types.Country;
+import com.netsuite.webservices.platform.common_2014_2.LocationSearchRowBasic;
+import com.netsuite.webservices.platform.core_2014_2.BooleanCustomFieldRef;
+import com.netsuite.webservices.platform.core_2014_2.CustomFieldList;
+import com.netsuite.webservices.platform.core_2014_2.CustomFieldRef;
+import com.netsuite.webservices.platform.core_2014_2.DataCenterUrls;
+import com.netsuite.webservices.platform.core_2014_2.Passport;
+import com.netsuite.webservices.platform.core_2014_2.Record;
+import com.netsuite.webservices.platform.core_2014_2.RecordList;
+import com.netsuite.webservices.platform.core_2014_2.RecordRef;
+import com.netsuite.webservices.platform.core_2014_2.SearchColumnCustomField;
+import com.netsuite.webservices.platform.core_2014_2.SearchColumnCustomFieldList;
+import com.netsuite.webservices.platform.core_2014_2.SearchColumnDateField;
+import com.netsuite.webservices.platform.core_2014_2.SearchColumnDoubleField;
+import com.netsuite.webservices.platform.core_2014_2.SearchColumnSelectField;
+import com.netsuite.webservices.platform.core_2014_2.SearchColumnStringCustomField;
+import com.netsuite.webservices.platform.core_2014_2.SearchColumnStringField;
+import com.netsuite.webservices.platform.core_2014_2.SearchCustomFieldList;
+import com.netsuite.webservices.platform.core_2014_2.SearchEnumMultiSelectField;
+import com.netsuite.webservices.platform.core_2014_2.SearchMultiSelectField;
+import com.netsuite.webservices.platform.core_2014_2.SearchResult;
+import com.netsuite.webservices.platform.core_2014_2.SearchRow;
+import com.netsuite.webservices.platform.core_2014_2.SearchRowList;
+import com.netsuite.webservices.platform.core_2014_2.SearchStringField;
+import com.netsuite.webservices.platform.core_2014_2.SearchTextNumberField;
+import com.netsuite.webservices.platform.core_2014_2.Status;
+import com.netsuite.webservices.platform.core_2014_2.StatusDetail;
+import com.netsuite.webservices.platform.core_2014_2.StringCustomFieldRef;
+import com.netsuite.webservices.platform.core_2014_2.types.RecordType;
+import com.netsuite.webservices.platform.core_2014_2.types.SearchEnumMultiSelectFieldOperator;
+import com.netsuite.webservices.platform.core_2014_2.types.SearchMultiSelectFieldOperator;
+import com.netsuite.webservices.platform.core_2014_2.types.SearchStringFieldOperator;
+import com.netsuite.webservices.platform.core_2014_2.types.SearchTextNumberFieldOperator;
+import com.netsuite.webservices.platform.core_2014_2.SearchBooleanField;
+import com.netsuite.webservices.platform.core_2014_2.SearchColumnEnumSelectField;
+import com.netsuite.webservices.platform.core_2014_2.SearchColumnTextNumberField;
+import com.netsuite.webservices.platform.core_2014_2.SearchColumnBooleanField;
+import com.netsuite.webservices.platform.faults_2014_2.ExceededRecordCountFault;
+import com.netsuite.webservices.platform.faults_2014_2.ExceededRequestLimitFault;
+import com.netsuite.webservices.platform.faults_2014_2.ExceededRequestSizeFault;
+import com.netsuite.webservices.platform.faults_2014_2.ExceededUsageLimitFault;
+import com.netsuite.webservices.platform.faults_2014_2.InvalidCredentialsFault;
+import com.netsuite.webservices.platform.faults_2014_2.InvalidSessionFault;
+import com.netsuite.webservices.platform.faults_2014_2.UnexpectedErrorFault;
+import com.netsuite.webservices.platform.messages_2014_2.Preferences;
+import com.netsuite.webservices.platform.messages_2014_2.ReadResponse;
+import com.netsuite.webservices.platform.messages_2014_2.SearchPreferences;
+import com.netsuite.webservices.platform.messages_2014_2.WriteResponse;
+import com.netsuite.webservices.platform_2014_2.NetSuiteBindingStub;
+import com.netsuite.webservices.platform_2014_2.NetSuitePortType;
+import com.netsuite.webservices.platform_2014_2.NetSuiteServiceLocator;
+import com.netsuite.webservices.transactions.sales_2014_2.SalesOrder;
+import com.netsuite.webservices.transactions.sales_2014_2.SalesOrderItem;
+import com.netsuite.webservices.transactions.sales_2014_2.SalesOrderItemList;
+import com.netsuite.webservices.transactions.sales_2014_2.TransactionSearch;
+import com.netsuite.webservices.transactions.sales_2014_2.TransactionSearchAdvanced;
+import com.netsuite.webservices.transactions.sales_2014_2.TransactionSearchRow;
+import com.netsuite.webservices.transactions.sales_2014_2.types.SalesOrderOrderStatus;
+import com.netsuite.webservices.transactions.sales_2014_2.types.TransactionStatus;
 
-public class NetsuiteOperationsManager extends NetSuiteClient implements INetsuiteOperationsManager {
+public class NetsuiteOperationsManager implements INetsuiteOperationsManager {
 
 	private static Logger logger = LoggerFactory.getLogger(NetsuiteOperationsManager.class);
 	private Passport passport = null;	
+	private String email;
+	public String getEmail() {
+		return email;
+	}
+
+	public void setEmail(String email) {
+		this.email = email;
+	}
+
+	public String getPassword() {
+		return password;
+	}
+
+	public void setPassword(String password) {
+		this.password = password;
+	}
+
+	public String getAccount() {
+		return account;
+	}
+
+	public void setAccount(String account) {
+		this.account = account;
+	}
+
+	public String getRole() {
+		return role;
+	}
+
+	public void setRole(String role) {
+		this.role = role;
+	}
+
+	public String getUrl() {
+		return url;
+	}
+
+	public void setUrl(String url) {
+		this.url = url;
+	}
+
+	private String password;
+	private String account;
+	private String role;
+	private String url;
+	private NetSuitePortType port=null;
 	
-	private void prepeareNSBindingStub() {
-		if (passport == null){
-			this.passport = new Passport();
-			this.passport.setAccount(getAccount());
-			this.passport.setEmail(getEmail());
-			this.passport.setPassword(getPassword());
-			this.passport.setRole(new RecordRef(null, getRole() , null, null));
+	private static class DataCenterAwareNetSuiteServiceLocator extends NetSuiteServiceLocator
+	{
+		private String account;
+
+		public DataCenterAwareNetSuiteServiceLocator(String account)
+		{
+			this.account = account;
 		}
-		NetSuiteBindingStub stub =  getNetSuiteStub();
+
+		@Override
+		public NetSuitePortType getNetSuitePort(URL defaultWsDomainURL)
+		{
+			try
+			{
+				NetSuitePortType _port = super.getNetSuitePort(defaultWsDomainURL);
+				// Get the webservices domain for your account
+				DataCenterUrls urls = _port.getDataCenterUrls(account).getDataCenterUrls();
+				String wsDomain = urls.getWebservicesDomain();
+
+				// Return URL appropriate for the specific account
+				return super.getNetSuitePort(new URL(wsDomain.concat(defaultWsDomainURL.getPath())));
+			}
+			catch (Exception e)
+			{
+				throw new RuntimeException(e);
+			}
+		}
+	}	
+	
+	private void initializeWs(){
+		logger.info("Initializing the Netsuite WS service.");
+		logger.info("Identifiyng the Data Center location.");
+		NetSuiteServiceLocator service = new DataCenterAwareNetSuiteServiceLocator(account);	
+		logger.info("Getting the Netsuite Proxy port. It might take some time, please wait...");
+		try {
+			port = service.getNetSuitePort(new URL(url));
+		} catch (MalformedURLException | ServiceException e) {			
+			e.printStackTrace();
+		}		
+		((NetSuiteBindingStub) port).setTimeout(1000 * 60 * 60 * 2);
+		logger.info("Netsuite WS service is initialized and ready for use.");
+	}
+	
+	private void prepeareNSBindingStub() {				
+		if (port ==null){
+			initializeWs();
+		}
+		passport = new Passport();
+		passport.setAccount(account);
+		passport.setEmail(email);
+		passport.setPassword(password);
+		passport.setRole(new RecordRef(null, role , null, null));			
+		NetSuiteBindingStub stub =  (NetSuiteBindingStub)port;
 		stub.setMaintainSession(false);
 		stub.clearHeaders();		
-		
-		SOAPHeaderElement searchPrefHeader = new SOAPHeaderElement("urn:messages_2012_1.platform.webservices.netsuite.com", "searchPreferences");
+		SOAPHeaderElement searchPrefHeader = new SOAPHeaderElement("urn:messages_2014_2.platform.webservices.netsuite.com", "searchPreferences");
 		SearchPreferences searchPrefs = new SearchPreferences();
 		searchPrefs.setPageSize(new Integer(500));
 		searchPrefs.setBodyFieldsOnly(false);		
@@ -162,10 +257,8 @@ public class NetsuiteOperationsManager extends NetSuiteClient implements INetsui
 			System.out.println("Wrong NetSuite Search Preferences configuration");
 			logger.error(e1.getMessage());
 		}
-		stub.setHeader(searchPrefHeader);
-		
-		
-		SOAPHeaderElement passportHeader = new SOAPHeaderElement("urn:messages_2012_1.platform.webservices.netsuite.com", "passport");
+		stub.setHeader(searchPrefHeader);		
+		SOAPHeaderElement passportHeader = new SOAPHeaderElement("urn:messages_2014_2.platform.webservices.netsuite.com", "passport");
 		try {
 			passportHeader.setObjectValue(passport);
 		} catch (SOAPException e) {
@@ -173,6 +266,10 @@ public class NetsuiteOperationsManager extends NetSuiteClient implements INetsui
 			logger.error(e.getMessage());
 		}
 		stub.setHeader(passportHeader);
+	}
+	
+	private NetSuiteBindingStub getNetSuiteStub(){
+		return (NetSuiteBindingStub)port;
 	}
 	
 	private String addCustomer(PurchaseOrderPojo po)
@@ -214,21 +311,20 @@ public class NetsuiteOperationsManager extends NetSuiteClient implements INetsui
 		CustomerAddressbookList addressbookList = new CustomerAddressbookList();
 		CustomerAddressbook defaultBillingAddress = new CustomerAddressbook();
 		CustomerAddressbook defaultShippingAddress = new CustomerAddressbook();
-		
-		defaultBillingAddress.setAddressee(po.getCustomerName1());
-		defaultBillingAddress.setAddr1(po.getCustomerAddress1());
+		Address billAddress = new Address();
+		billAddress.setAddressee(po.getCustomerName1());		
+		billAddress.setAddr1(po.getCustomerAddress1());
 		if (po.getCustomerAddress2() != null)
-			defaultBillingAddress.setAddr2(po.getCustomerAddress2());
+			billAddress.setAddr2(po.getCustomerAddress2());
 		if (po.getCustomerAddress3() != null)
-			defaultBillingAddress.setAddr3(po.getCustomerAddress3());
-		
-		defaultBillingAddress.setCity(po.getCustomerCity());
-		defaultBillingAddress.setState(po.getCustomerState());
-		defaultBillingAddress.setZip(po.getCustomerPostalCode());
-		defaultBillingAddress.setPhone(po.getCustomerDayPhone());
-		defaultBillingAddress.setCountry(Country._unitedStates);
-		defaultBillingAddress.setDefaultBilling(true);
-		
+			billAddress.setAddr3(po.getCustomerAddress3());		
+		billAddress.setCity(po.getCustomerCity());
+		billAddress.setState(po.getCustomerState());
+		billAddress.setZip(po.getCustomerPostalCode());
+		billAddress.setAddrPhone(po.getCustomerDayPhone());
+		billAddress.setCountry(Country._unitedStates);
+		defaultBillingAddress.setAddressbookAddress(billAddress);
+		defaultBillingAddress.setDefaultBilling(true);		
 		listCustomerAddressbook.add(defaultBillingAddress);
 		
 		if( 
@@ -238,18 +334,19 @@ public class NetsuiteOperationsManager extends NetSuiteClient implements INetsui
 			) == false
 		)
 		{
-			defaultShippingAddress.setAddressee(po.getShipToName1());
-			defaultShippingAddress.setAddr1(po.getShipToAddress1());
+			Address shipAddress = new Address();			
+			shipAddress.setAddressee(po.getShipToName1());
+			shipAddress.setAddr1(po.getShipToAddress1());
 			if (po.getShipToAddress2() != null)
-				defaultShippingAddress.setAddr2(po.getShipToAddress2());
+				shipAddress.setAddr2(po.getShipToAddress2());
 			if (po.getShipToAddress3() != null)
-				defaultShippingAddress.setAddr3(po.getShipToAddress3());
-			
-			defaultShippingAddress.setCity(po.getShipToCity());
-			defaultShippingAddress.setState(po.getShipToState());
-			defaultShippingAddress.setZip(po.getShipToPostalCode());
-			defaultShippingAddress.setPhone(po.getShipToDayPhone());
-			defaultShippingAddress.setCountry(Country._unitedStates);
+				shipAddress.setAddr3(po.getShipToAddress3());			
+			shipAddress.setCity(po.getShipToCity());
+			shipAddress.setState(po.getShipToState());
+			shipAddress.setZip(po.getShipToPostalCode());
+			shipAddress.setAddrPhone(po.getShipToDayPhone());
+			shipAddress.setCountry(Country._unitedStates);
+			defaultShippingAddress.setAddressbookAddress(shipAddress);
 			defaultShippingAddress.setDefaultShipping(true);
 			listCustomerAddressbook.add(defaultShippingAddress);
 		}
@@ -789,9 +886,9 @@ public class NetsuiteOperationsManager extends NetSuiteClient implements INetsui
 		/* set Customer order # */
 		CustomFieldList customBodyList = new CustomFieldList();
 		CustomFieldRef[] customBodyFields = new CustomFieldRef[3];
-		customBodyFields[0] = new StringCustomFieldRef("custbody14",Integer.toString(po.getOrderId()));
-		customBodyFields[1] = new BooleanCustomFieldRef("custbody_is_urgent", true);
-		customBodyFields[2] = new StringCustomFieldRef("custbodypartner_person_place_id", po.getShipToPartnerPersonPlaceId());
+		customBodyFields[0] = new StringCustomFieldRef(null, "custbody14",Integer.toString(po.getOrderId()));
+		customBodyFields[1] = new BooleanCustomFieldRef(null, "custbody_is_urgent", true);
+		customBodyFields[2] = new StringCustomFieldRef(null, "custbodypartner_person_place_id", po.getShipToPartnerPersonPlaceId());
 		customBodyList.setCustomField(customBodyFields);
 		order.setCustomFieldList(customBodyList);
 		
@@ -879,8 +976,8 @@ public class NetsuiteOperationsManager extends NetSuiteClient implements INetsui
 			CustomFieldList customList = new CustomFieldList();
 			CustomFieldRef[] customFields = new CustomFieldRef[2];
 			
-			customFields[0] = new StringCustomFieldRef("custcol11", Integer.toString(orderItemPo.getMerchantLineNumber()));
-			customFields[1] = new StringCustomFieldRef("custcolmerchant_sku", orderItemPo.getMerchantSKU());
+			customFields[0] = new StringCustomFieldRef(null, "custcol11", Integer.toString(orderItemPo.getMerchantLineNumber()));
+			customFields[1] = new StringCustomFieldRef(null, "custcolmerchant_sku", orderItemPo.getMerchantSKU());
 			
 			customList.setCustomField(customFields);
 			orderItem.setCustomFieldList(customList);
@@ -1481,9 +1578,9 @@ public class NetsuiteOperationsManager extends NetSuiteClient implements INetsui
 		rowBasic.setTranDate(new SearchColumnDateField[]{new SearchColumnDateField()});
 		
 		SearchColumnCustomFieldList customFieldList = new SearchColumnCustomFieldList();
-		SearchColumnStringCustomField personPlaceId = new SearchColumnStringCustomField(null, "custbodypartner_person_place_id", null);
-		SearchColumnStringCustomField itemVendorLineNumber = new SearchColumnStringCustomField(null, "custcol11", null);
-		SearchColumnStringCustomField itemMerchantSKU = new SearchColumnStringCustomField(null, "custcolmerchant_sku", null);
+		SearchColumnStringCustomField personPlaceId = new SearchColumnStringCustomField("custbodypartner_person_place_id","1474", null, null);
+		SearchColumnStringCustomField itemVendorLineNumber = new SearchColumnStringCustomField("custcol11", "1471" ,null, null);
+		SearchColumnStringCustomField itemMerchantSKU = new SearchColumnStringCustomField("custcolmerchant_sku", "1475", null, null);
 		
 		customFieldList.setCustomField(new SearchColumnCustomField[]{personPlaceId, itemVendorLineNumber, itemMerchantSKU});
 		rowBasic.setCustomFieldList(customFieldList);
@@ -1597,8 +1694,8 @@ public class NetsuiteOperationsManager extends NetSuiteClient implements INetsui
 							for(SearchColumnCustomField customField : customFields){
 								SearchColumnStringCustomField field = (SearchColumnStringCustomField)customField;
 								if(null != field){
-									if(field.getInternalId().equalsIgnoreCase("custbodypartner_person_place_id")){
-										soCustomFields[0] = new StringCustomFieldRef("custbodypartner_person_place_id", field.getSearchValue());
+									if(field.getScriptId().equalsIgnoreCase("custbodypartner_person_place_id")){
+										soCustomFields[0] = new StringCustomFieldRef(null, "custbodypartner_person_place_id", field.getSearchValue());
 									}
 								}
 							}
@@ -1618,11 +1715,11 @@ public class NetsuiteOperationsManager extends NetSuiteClient implements INetsui
 						for(SearchColumnCustomField customField : customFields){
 							SearchColumnStringCustomField field = (SearchColumnStringCustomField)customField;
 							if(null != field){
-								if(field.getInternalId().equalsIgnoreCase("custcol11")){
-									soItemCustomFields[0] = new StringCustomFieldRef("custcol11", field.getSearchValue());
+								if(field.getScriptId().equalsIgnoreCase("custcol11")){
+									soItemCustomFields[0] = new StringCustomFieldRef(null, "custcol11", field.getSearchValue());
 								}
-								if(field.getInternalId().equalsIgnoreCase("custcolmerchant_sku")){
-									soItemCustomFields[1] = new StringCustomFieldRef("custcolmerchant_sku", field.getSearchValue());
+								if(field.getScriptId().equalsIgnoreCase("custcolmerchant_sku")){
+									soItemCustomFields[1] = new StringCustomFieldRef(null, "custcolmerchant_sku", field.getSearchValue());
 								}
 							}
 						}

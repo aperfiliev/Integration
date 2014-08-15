@@ -116,15 +116,14 @@
 		<property name="userName" value="${ch_ftp_user_login}"/>
 		<property name="password" value="${ch_ftp_user_password}"/>		
 		<property name="setBinaryFileType" value="${ftp_set_binary_file_type}"/>
-	</bean>
-	<bean id="netSuiteClient" class="com.erpguru.netsuite.NetSuiteClient">
+	</bean>	
+	<bean id="netsuiteOperationsManager" class="com.malkos.poppin.transport.NetsuiteOperationsManager">	
 		<property name="email" value="${netsuite_config_email}" />
 		<property name="password" value="${netsuite_config_password}" />
 		<property name="account" value="${netsuite_config_account}" />
 		<property name="role" value="${netsuite_config_role}" />
 		<property name="url" value="${netsuite_config_url}" />
 	</bean>
-	<bean id="netsuiteOperationsManager" class="com.malkos.poppin.transport.NetsuiteOperationsManager" parent="netSuiteClient"/>	
 	<bean id="globalPropertiesProvider" class="com.malkos.poppin.bootstrap.GlobalPropertiesProvider">
 		<property name="purchaseOrdersPath" value="${purchase_orders_path}" />
 	</bean>
