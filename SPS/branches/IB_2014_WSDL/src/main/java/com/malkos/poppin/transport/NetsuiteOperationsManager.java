@@ -901,9 +901,9 @@ public class NetsuiteOperationsManager implements INetsuiteOperationsManager {
 		trRowBasic.setTranId(new SearchColumnStringField[]{new SearchColumnStringField()});
 		
 		SearchColumnCustomFieldList sccfl = new SearchColumnCustomFieldList();
-		SearchColumnStringCustomField merchantSKU = new SearchColumnStringCustomField("1475", "custcolmerchant_sku", null,  null);
+		SearchColumnStringCustomField merchantSKU = new SearchColumnStringCustomField("custcolmerchant_sku", "1475",  null,  null);
 		
-		SearchColumnStringCustomField vendorLineNumber = new SearchColumnStringCustomField("1471", "custcol11", null, null);
+		SearchColumnStringCustomField vendorLineNumber = new SearchColumnStringCustomField("custcol11", "1471", null, null);
 		sccfl.setCustomField(new SearchColumnCustomField[] { merchantSKU, vendorLineNumber});		
 		trRowBasic.setCustomFieldList(sccfl);
 		
