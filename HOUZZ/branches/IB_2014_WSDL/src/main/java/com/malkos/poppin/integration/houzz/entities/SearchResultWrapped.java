@@ -1,7 +1,7 @@
 package com.malkos.poppin.integration.houzz.entities;
 
-import com.netsuite.webservices.platform.core_2013_1.SearchResult;
-import com.netsuite.webservices.platform.messages_2013_1.WriteResponseList;
+import com.netsuite.webservices.platform.core_2014_2.SearchResult;
+import com.netsuite.webservices.platform.messages_2014_2.WriteResponseList;
 
 public class SearchResultWrapped {
 	private NSRrequestDetails requestDeatils;

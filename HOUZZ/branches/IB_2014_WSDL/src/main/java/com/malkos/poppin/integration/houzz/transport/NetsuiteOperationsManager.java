@@ -26,43 +26,43 @@ import com.malkos.poppin.integration.houzz.entities.OlapicInventoryItemPojo;
 import com.malkos.poppin.integration.houzz.entities.SearchResultWrapped;
 import com.malkos.poppin.integration.houzz.persistence.dao.LineItemIntegrationIdentifierDAO;
 import com.malkos.poppin.integration.houzz.util.ErrorsCollector;
-import com.netsuite.webservices.lists.accounting_2013_1.InventoryItem;
-import com.netsuite.webservices.lists.accounting_2013_1.InventoryItemLocations;
-import com.netsuite.webservices.lists.accounting_2013_1.ItemMember;
-import com.netsuite.webservices.lists.accounting_2013_1.ItemMemberList;
-import com.netsuite.webservices.lists.accounting_2013_1.ItemSearch;
-import com.netsuite.webservices.lists.accounting_2013_1.ItemSearchAdvanced;
-import com.netsuite.webservices.lists.accounting_2013_1.ItemSearchRow;
-import com.netsuite.webservices.lists.accounting_2013_1.KitItem;
-import com.netsuite.webservices.lists.accounting_2013_1.Pricing;
-import com.netsuite.webservices.platform.common_2013_1.ItemSearchBasic;
-import com.netsuite.webservices.platform.common_2013_1.ItemSearchRowBasic;
-import com.netsuite.webservices.platform.common_2013_1.LocationSearchRowBasic;
-import com.netsuite.webservices.platform.core_2013_1.BooleanCustomFieldRef;
-import com.netsuite.webservices.platform.core_2013_1.CustomFieldList;
-import com.netsuite.webservices.platform.core_2013_1.CustomFieldRef;
-import com.netsuite.webservices.platform.core_2013_1.Record;
-import com.netsuite.webservices.platform.core_2013_1.RecordList;
-import com.netsuite.webservices.platform.core_2013_1.RecordRef;
-import com.netsuite.webservices.platform.core_2013_1.SearchBooleanField;
-import com.netsuite.webservices.platform.core_2013_1.SearchColumnBooleanField;
-import com.netsuite.webservices.platform.core_2013_1.SearchColumnCustomField;
-import com.netsuite.webservices.platform.core_2013_1.SearchColumnCustomFieldList;
-import com.netsuite.webservices.platform.core_2013_1.SearchColumnDoubleField;
-import com.netsuite.webservices.platform.core_2013_1.SearchColumnEnumSelectField;
-import com.netsuite.webservices.platform.core_2013_1.SearchColumnSelectField;
-import com.netsuite.webservices.platform.core_2013_1.SearchColumnStringCustomField;
-import com.netsuite.webservices.platform.core_2013_1.SearchColumnStringField;
-import com.netsuite.webservices.platform.core_2013_1.SearchMultiSelectField;
-import com.netsuite.webservices.platform.core_2013_1.SearchResult;
-import com.netsuite.webservices.platform.core_2013_1.SearchRow;
-import com.netsuite.webservices.platform.core_2013_1.SearchRowList;
-import com.netsuite.webservices.platform.core_2013_1.SearchStringField;
-import com.netsuite.webservices.platform.core_2013_1.StringCustomFieldRef;
-import com.netsuite.webservices.platform.core_2013_1.types.RecordType;
-import com.netsuite.webservices.platform.core_2013_1.types.SearchMultiSelectFieldOperator;
-import com.netsuite.webservices.platform.core_2013_1.types.SearchStringFieldOperator;
-import com.netsuite.webservices.platform_2013_1.NetSuiteServiceLocator;
+import com.netsuite.webservices.lists.accounting_2014_2.InventoryItem;
+import com.netsuite.webservices.lists.accounting_2014_2.InventoryItemLocations;
+import com.netsuite.webservices.lists.accounting_2014_2.ItemMember;
+import com.netsuite.webservices.lists.accounting_2014_2.ItemMemberList;
+import com.netsuite.webservices.lists.accounting_2014_2.ItemSearch;
+import com.netsuite.webservices.lists.accounting_2014_2.ItemSearchAdvanced;
+import com.netsuite.webservices.lists.accounting_2014_2.ItemSearchRow;
+import com.netsuite.webservices.lists.accounting_2014_2.KitItem;
+import com.netsuite.webservices.lists.accounting_2014_2.Pricing;
+import com.netsuite.webservices.platform.common_2014_2.ItemSearchBasic;
+import com.netsuite.webservices.platform.common_2014_2.ItemSearchRowBasic;
+import com.netsuite.webservices.platform.common_2014_2.LocationSearchRowBasic;
+import com.netsuite.webservices.platform.core_2014_2.BooleanCustomFieldRef;
+import com.netsuite.webservices.platform.core_2014_2.CustomFieldList;
+import com.netsuite.webservices.platform.core_2014_2.CustomFieldRef;
+import com.netsuite.webservices.platform.core_2014_2.Record;
+import com.netsuite.webservices.platform.core_2014_2.RecordList;
+import com.netsuite.webservices.platform.core_2014_2.RecordRef;
+import com.netsuite.webservices.platform.core_2014_2.SearchBooleanField;
+import com.netsuite.webservices.platform.core_2014_2.SearchColumnBooleanField;
+import com.netsuite.webservices.platform.core_2014_2.SearchColumnCustomField;
+import com.netsuite.webservices.platform.core_2014_2.SearchColumnCustomFieldList;
+import com.netsuite.webservices.platform.core_2014_2.SearchColumnDoubleField;
+import com.netsuite.webservices.platform.core_2014_2.SearchColumnEnumSelectField;
+import com.netsuite.webservices.platform.core_2014_2.SearchColumnSelectField;
+import com.netsuite.webservices.platform.core_2014_2.SearchColumnStringCustomField;
+import com.netsuite.webservices.platform.core_2014_2.SearchColumnStringField;
+import com.netsuite.webservices.platform.core_2014_2.SearchMultiSelectField;
+import com.netsuite.webservices.platform.core_2014_2.SearchResult;
+import com.netsuite.webservices.platform.core_2014_2.SearchRow;
+import com.netsuite.webservices.platform.core_2014_2.SearchRowList;
+import com.netsuite.webservices.platform.core_2014_2.SearchStringField;
+import com.netsuite.webservices.platform.core_2014_2.StringCustomFieldRef;
+import com.netsuite.webservices.platform.core_2014_2.types.RecordType;
+import com.netsuite.webservices.platform.core_2014_2.types.SearchMultiSelectFieldOperator;
+import com.netsuite.webservices.platform.core_2014_2.types.SearchStringFieldOperator;
+import com.netsuite.webservices.platform_2014_2.NetSuiteServiceLocator;
 
 
 public class NetsuiteOperationsManager implements INetsuiteOperationsManager {
@@ -432,7 +432,7 @@ public class NetsuiteOperationsManager implements INetsuiteOperationsManager {
 		columnsBasic.setItemUrl(new SearchColumnStringField[]{new SearchColumnStringField()});
 		columnsBasic.setInternalId(new SearchColumnSelectField[]{new SearchColumnSelectField()});
 		SearchColumnCustomFieldList sccfl = new SearchColumnCustomFieldList();
-		SearchColumnStringCustomField itemDisplayImage = new SearchColumnStringCustomField(null, "custitem_display_image", null);		
+		SearchColumnStringCustomField itemDisplayImage = new SearchColumnStringCustomField("custitem_display_image", "1352", null, null);		
 		sccfl.setCustomField(new SearchColumnCustomField[] { itemDisplayImage});		
 		columnsBasic.setCustomFieldList(sccfl);		
 		columns.setBasic(columnsBasic);		
@@ -520,7 +520,7 @@ public class NetsuiteOperationsManager implements INetsuiteOperationsManager {
 										if (sccf instanceof SearchColumnStringCustomField){
 											SearchColumnStringCustomField scscf = (SearchColumnStringCustomField)sccf;
 											if (scscf!=null){
-												if (scscf.getInternalId().equalsIgnoreCase("custitem_display_image")){
+												if (scscf.getScriptId().equalsIgnoreCase("custitem_display_image")){
 													itemPojo.setItemDisplayImage(scscf.getSearchValue());
 												}
 											}
