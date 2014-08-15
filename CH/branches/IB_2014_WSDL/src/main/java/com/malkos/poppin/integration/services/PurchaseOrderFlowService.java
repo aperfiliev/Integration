@@ -233,7 +233,7 @@ public class PurchaseOrderFlowService implements IPurchaseOrderFlowService {
 					ErrorsCollector.addCommonErrorMessage(new CHIntegrationError(errorMessage));
 				}
 				catch (NetsuiteOperationException nsEx) {
-					String errorMessage = "Failed to add sales order with PO # : " + po.getPoNumber() + ". " + nsEx.getMessage(); 
+					String errorMessage = "Failed to add sales order with PO # : " + po.getPoNumber() + ". " + nsEx.getMessage(); 					
 					logger.warn(errorMessage);
 					po.addException(errorMessage);
 					if(nsEx.getRequestDetails() != null){
@@ -246,6 +246,10 @@ public class PurchaseOrderFlowService implements IPurchaseOrderFlowService {
 						po.getErrorDetails().setResponseFilePath(details.getResponseFilePath());
 						po.getErrorDetails().setRequestType(details.getRequestType().toString());	
 						po.getErrorDetails().setRequestTime(details.getRequestDateTime());
+					}
+					if (errorMessage.contains("Invalid item reference key")){
+						po.setStatus(PurchaseOrderStatus.POPPIN_REJECTED);
+						processedOrdersList.add(po);
 					}
 				}
 				catch(Exception ex){
