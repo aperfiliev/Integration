@@ -1236,9 +1236,9 @@ public class NetsuiteOperationsManager implements INetsuiteOperationsManager {
 							for(SearchColumnCustomField sccf :  tsBiling.getCustomFieldList().getCustomField()){
 								SearchColumnStringCustomField scsFielf = (SearchColumnStringCustomField)sccf;
 								
-								if(scsFielf.getScriptId().equalsIgnoreCase("billingtransaction_custcolmerchant_sku"))
+								if(scsFielf.getScriptId().equalsIgnoreCase("custcolmerchant_sku"))
 									iiPojo.setMerchantSKU(scsFielf.getSearchValue());
-								else if(scsFielf.getScriptId().equalsIgnoreCase("billingtransaction_custcol11"))
+								else if(scsFielf.getScriptId().equalsIgnoreCase("custcol11"))
 									iiPojo.setVendorlineNumber(scsFielf.getSearchValue());								
 							}
 							itemList.add(iiPojo);
