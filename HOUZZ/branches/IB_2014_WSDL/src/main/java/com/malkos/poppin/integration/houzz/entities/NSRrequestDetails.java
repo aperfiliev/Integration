@@ -14,15 +14,16 @@ public class NSRrequestDetails {
 	private String errorId;
 	private String retailer;
 	
-	public NSRrequestDetails(){		
+	public NSRrequestDetails(){	
+		this.requestType = "SEARCH";
+		this.nsUsername = GlobalPropertiesProvider.getGlobalProperties().getNetsuiteConfigEmail();
 	}
 	
 	public NSRrequestDetails(String requestFilePath, String responseFilePath, Date requestDateTime){
+		this();
 		this.requestFilePath = requestFilePath;
 		this.responseFilePath = responseFilePath;
-		this.requestDateTime = requestDateTime;
-		this.requestType = "SEARCH";
-		this.nsUsername = GlobalPropertiesProvider.getGlobalProperties().getNetsuiteConfigEmail();
+		this.requestDateTime = requestDateTime;		
 	}
 	
 	public String getRequestFilePath() {
