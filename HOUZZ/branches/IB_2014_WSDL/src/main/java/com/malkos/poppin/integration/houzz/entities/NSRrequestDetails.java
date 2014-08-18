@@ -2,6 +2,7 @@ package com.malkos.poppin.integration.houzz.entities;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.TimeZone;
 
 import com.malkos.poppin.integration.houzz.bootstrap.GlobalPropertiesProvider;
 
@@ -39,7 +40,8 @@ public class NSRrequestDetails {
 		this.responseFilePath = responseFilePath;
 	}
 	public String getRequestDateTime() {
-		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss z");
+		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		dateFormat.setTimeZone(TimeZone.getTimeZone("EST"));
 		if (requestDateTime!=null){
 			return dateFormat.format(requestDateTime);
 		}
