@@ -104,14 +104,14 @@ public class NetsuiteService {
 		NetSuiteBindingStub stub = (NetSuiteBindingStub) port;
 		stub.setMaintainSession(false);
 		stub.clearHeaders();
-		SOAPHeaderElement searchPrefHeader = new SOAPHeaderElement("urn:messages_2013_1.platform.webservices.netsuite.com", "searchPreferences");
+		SOAPHeaderElement searchPrefHeader = new SOAPHeaderElement("urn:messages_2014_1.platform.webservices.netsuite.com", "searchPreferences");
 		SearchPreferences searchPrefs = new SearchPreferences();
 		searchPrefs.setPageSize(new Integer(500));
 		searchPrefs.setBodyFieldsOnly(searchBodyFieldsOnly);
 		searchPrefHeader.setObjectValue(searchPrefs);
 		stub.setHeader(searchPrefHeader);
 		
-		SOAPHeaderElement passportHeader = new SOAPHeaderElement("urn:messages_2013_1.platform.webservices.netsuite.com", "passport");
+		SOAPHeaderElement passportHeader = new SOAPHeaderElement("urn:messages_2014_1.platform.webservices.netsuite.com", "passport");
 		passportHeader.setObjectValue(passport);
 		stub.setHeader(passportHeader);
 	}
@@ -120,7 +120,7 @@ public class NetsuiteService {
 		stub.setMaintainSession(false);
 		stub.clearHeaders();
 		
-		SOAPHeaderElement passportHeader = new SOAPHeaderElement("urn:messages_2013_1.platform.webservices.netsuite.com", "passport");
+		SOAPHeaderElement passportHeader = new SOAPHeaderElement("urn:messages_2014_1.platform.webservices.netsuite.com", "passport");
 		passportHeader.setObjectValue(passport);
 		stub.setHeader(passportHeader);
 	}
