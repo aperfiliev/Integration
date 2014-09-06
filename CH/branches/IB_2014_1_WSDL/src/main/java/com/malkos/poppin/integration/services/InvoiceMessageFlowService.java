@@ -34,7 +34,7 @@ import com.malkos.poppin.transport.NetsuiteOperationException;
 import com.malkos.poppin.utils.ErrorMessageWrapper;
 import com.malkos.poppin.utils.ErrorsCollector;
 import com.malkos.poppin.utils.XmlParserUtil;
-import com.netsuite.webservices.transactions.sales_2014_2.SalesOrder;
+import com.netsuite.webservices.transactions.sales_2014_1.SalesOrder;
 
 public class InvoiceMessageFlowService implements IInvoiceMessageService  {
 	

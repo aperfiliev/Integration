@@ -39,14 +39,14 @@ import com.malkos.poppin.entities.MessageBatchTransfer;
 import com.malkos.poppin.entities.PurchaseOrderPojo;
 import com.malkos.poppin.entities.PurchaseOrderStatus;
 import com.malkos.poppin.persistence.PersistenceManager;
-import com.netsuite.webservices.platform.common_2014_2.InventoryDetail;
-import com.netsuite.webservices.platform.core_2014_2.CustomFieldList;
-import com.netsuite.webservices.platform.core_2014_2.CustomFieldRef;
-import com.netsuite.webservices.platform.core_2014_2.RecordRef;
-import com.netsuite.webservices.platform.core_2014_2.StringCustomFieldRef;
-import com.netsuite.webservices.transactions.sales_2014_2.SalesOrder;
-import com.netsuite.webservices.transactions.sales_2014_2.SalesOrderItem;
-import com.netsuite.webservices.transactions.sales_2014_2.SalesOrderItemList;
+import com.netsuite.webservices.platform.common_2014_1.InventoryDetail;
+import com.netsuite.webservices.platform.core_2014_1.CustomFieldList;
+import com.netsuite.webservices.platform.core_2014_1.CustomFieldRef;
+import com.netsuite.webservices.platform.core_2014_1.RecordRef;
+import com.netsuite.webservices.platform.core_2014_1.StringCustomFieldRef;
+import com.netsuite.webservices.transactions.sales_2014_1.SalesOrder;
+import com.netsuite.webservices.transactions.sales_2014_1.SalesOrderItem;
+import com.netsuite.webservices.transactions.sales_2014_1.SalesOrderItemList;
 
 public class XmlParserUtil {
 	private static Logger logger = LoggerFactory.getLogger(XmlParserUtil.class);

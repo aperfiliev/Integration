@@ -10,8 +10,8 @@ import com.malkos.poppin.entities.PurchaseOrderPojo;
 import com.malkos.poppin.entities.UnprocessibleOrdersType;
 import com.malkos.poppin.persistence.dao.PurchaseOrderDAO;
 import com.malkos.poppin.persistence.dao.VendorSkuToModelNumMapDAO;
-import com.netsuite.webservices.lists.accounting_2014_2.InventoryItem;
-import com.netsuite.webservices.transactions.sales_2014_2.SalesOrder;
+import com.netsuite.webservices.lists.accounting_2014_1.InventoryItem;
+import com.netsuite.webservices.transactions.sales_2014_1.SalesOrder;
 
 
 public interface INetsuiteOperationsManager {
