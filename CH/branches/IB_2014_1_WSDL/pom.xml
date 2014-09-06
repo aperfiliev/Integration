@@ -88,9 +88,9 @@
 		<version>1.4</version>
 	</dependency>
 	<dependency>
-		<groupId>com.netsuite.netsuite_client_2014_2</groupId>
+		<groupId>com.netsuite.netsuite_client_2014_1</groupId>
 		<artifactId>nsclient</artifactId>
-		<version>2014_2</version>
+		<version>2014_1</version>
     </dependency>		
 	<dependency>
 		<groupId>org.apache.axis</groupId>
