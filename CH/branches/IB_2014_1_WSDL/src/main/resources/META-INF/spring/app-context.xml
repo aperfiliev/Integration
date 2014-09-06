@@ -1,0 +1,182 @@
+<?xml version='1.0' encoding='UTF-8'?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+ 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ 	xmlns:p="http://www.springframework.org/schema/p"
+ 	xmlns:task="http://www.springframework.org/schema/task"
+ 	xmlns:context="http://www.springframework.org/schema/context"
+ 	xsi:schemaLocation="http://www.springframework.org/schema/beans
+ 		http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+ 		http://www.springframework.org/schema/context
+ 		http://www.springframework.org/schema/context/spring-context-3.0.xsd
+ 		http://www.springframework.org/schema/task
+ 		http://www.springframework.org/schema/task/spring-task.xsd">
+ 	
+ 	<bean id="applicationContextProvder" class="com.malkos.poppin.bootstrap.ApplicationContextProvider"/>
+ 	
+ 	<context:component-scan base-package="com.malkos.poppin.integration.services" />
+	<context:component-scan base-package="com.malkos.poppin.integration.persistence" />
+	<context:component-scan base-package="com.malkos.poppin.transport" />	
+	<context:component-scan base-package="com.malkos.poppin.schedullers" />
+	<context:component-scan base-package="com.malkos.poppin.utils" />
+ 		
+ 	<task:scheduled-tasks scheduler="thePullFilesFromCHScheduler">
+			<task:scheduled ref="pullFilesFromCHScheduler" method="processTask" cron="${integration_pull_files_scheduling_cron}"/>
+	</task:scheduled-tasks>
+	<task:scheduler id="thePullFilesFromCHScheduler" pool-size="1"/>
+	
+	
+	<task:scheduled-tasks scheduler="thePushFilesToCHScheduler">
+		<task:scheduled ref="pushFilesToCHScheduler" method="processTask" cron="${integration_push_files_scheduling_cron}"/>
+	</task:scheduled-tasks>
+	<task:scheduler id="thePushFilesToCHScheduler" pool-size="1"/>
+ 		
+	<task:scheduled-tasks scheduler="thePoFlowScheduler">
+		<task:scheduled ref="poFlowScheduler" method="processTask" cron="${integration_purchase_orders_scheduling_cron}"/>
+	</task:scheduled-tasks>
+	<task:scheduler id="thePoFlowScheduler" pool-size="1"/>
+	
+	<task:scheduled-tasks scheduler="theSCFlowScheduler">
+		<task:scheduled ref="scFlowScheduler" method="processTask" cron="${integration_shipping_confirmation_scheduling_cron}"/>
+	</task:scheduled-tasks>
+	<task:scheduler id="theSCFlowScheduler" pool-size="1"/>
+
+	<task:scheduled-tasks scheduler="theOIFlowScheduler">
+		<task:scheduled ref="oiFlowScheduler" method="processTask" cron="${integration_order_invoices_scheduling_cron}"/>
+	</task:scheduled-tasks>
+	<task:scheduler id="theOIFlowScheduler" pool-size="1"/>
+
+	<task:scheduled-tasks scheduler="theIUFlowScheduler">
+		<task:scheduled ref="iuFlowScheduler" method="processTask" cron="${integration_inventory_scheduling_cron}"/>
+	</task:scheduled-tasks>
+	<task:scheduler id="theIUFlowScheduler" pool-size="1"/>
+	
+	<task:scheduled-tasks scheduler="theClearDiskFlowScheduler">	
+			<task:scheduled ref="clearDiskFlowScheduler" method="processTask" cron="${integration_free_space_scheduling_cron}"/>
+	</task:scheduled-tasks>
+	<task:scheduler id="theClearDiskFlowScheduler" pool-size="1"/>
+	
+	<task:scheduled-tasks scheduler="theCancelledOrdersFlowScheduler">	
+			<task:scheduled ref="cancelledOrdersFlowScheduler" method="processTask" cron="${integration_cancelled_orders_scheduling_cron}"/>
+	</task:scheduled-tasks>
+	<task:scheduler id="theCancelledOrdersFlowScheduler" pool-size="1"/>
+	
+	<task:scheduled-tasks scheduler="theResendEmailFlowScheduler">
+			<task:scheduled ref="resendEmailFlowScheduler" method="processTask" cron="15 0/15 * * * ?"/>
+	</task:scheduled-tasks>
+	<task:scheduler id="theResendEmailFlowScheduler" pool-size="1"/>
+	<bean id="resendEmailFlowScheduler" class="com.malkos.poppin.schedullers.ResendEmailFlowScheduller" />
+
+	<bean id="propertyConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="locations">
+			<list>
+				<value>file:./dev.properties</value>
+			</list>
+		</property>
+	</bean>
+	
+		
+	<bean id="pullFilesFromCHScheduler" class="com.malkos.poppin.schedullers.PullFilesFromCHScheduller" />	
+	<bean id="pushFilesToCHScheduler" class="com.malkos.poppin.schedullers.PushFilesToCHScheduller" />
+	<bean id="poFlowScheduler" class="com.malkos.poppin.schedullers.PurchaseOrderFlowScheduller"/>
+	<bean id="scFlowScheduler" class="com.malkos.poppin.schedullers.ShippingConfirmationFlowScheduller"/>
+	<bean id="oiFlowScheduler" class="com.malkos.poppin.schedullers.InvoiceMessageFlowScheduller"/>
+	<bean id="iuFlowScheduler" class="com.malkos.poppin.schedullers.InventoryUpdateFlowScheduller"/>
+	<bean id="clearDiskFlowScheduler" class="com.malkos.poppin.schedullers.FreeDiskSpaceScheduller" />
+	<bean id="cancelledOrdersFlowScheduler" class="com.malkos.poppin.schedullers.CancelledOrdersFlowScheduller" />
+	<bean id="notificationSender" class="com.malkos.poppin.utils.NotificationEmailSender"/>
+	
+	<bean id="filesStorageService" class="com.malkos.poppin.integration.services.FilesStorageService" />
+	<bean id="cancelledOrdersFlowService" class="com.malkos.poppin.integration.services.CancelledOrdersFlowService" > 
+		<property name="netsuiteOperationsManager" ref="netsuiteOperationsManager"/>
+	</bean>
+	<bean id="poFlowService" class="com.malkos.poppin.integration.services.PurchaseOrderFlowService" > 
+		<property name="netsuiteOperationsManager" ref="netsuiteOperationsManager"/>
+	</bean>
+	<bean id="scFlowService" class="com.malkos.poppin.integration.services.ShippingConfirmationFlowService" > 
+		<property name="netsuiteOperationsManager" ref="netsuiteOperationsManager"/>
+	</bean>
+	<bean id="oiFlowService" class="com.malkos.poppin.integration.services.InvoiceMessageFlowService" > 
+		<property name="netsuiteOperationsManager" ref="netsuiteOperationsManager"/>
+	</bean>
+	<bean id="iuFlowService" class="com.malkos.poppin.integration.services.InventoryUpdateFlowService" > 
+		<property name="netsuiteOperationsManager" ref="netsuiteOperationsManager"/>
+	</bean>
+	<bean id="remoteFilesOperator" class="com.malkos.poppin.transport.RemoteFilesOperator">
+		<property name="chOutgoingFilesDir" value="${purchase_orders_path}" />
+		<property name="chIncomingFaDir" value="${fa_messages_path}" />
+		<property name="chShippingConfirmationDir" value="${confirmation_messages_path}" />
+		<property name="chOrderInvoiceDir" value="${invoice_messages_path}" />
+		<property name="chInventoryUpdateDir" value="${inventory_messages_path}" />	
+	</bean>		
+	<bean id="persistanceManager" class="com.malkos.poppin.persistence.PersistenceManager"/>	
+	<bean id="ftpFileManager" class="com.malkos.poppin.transport.FTPFileManager">
+		<property name="hostName" value="${ch_ftp_host_address}"/>
+		<property name="port" value="${ch_ftp_host_port}"/> 
+		<property name="userName" value="${ch_ftp_user_login}"/>
+		<property name="password" value="${ch_ftp_user_password}"/>		
+		<property name="setBinaryFileType" value="${ftp_set_binary_file_type}"/>
+	</bean>	
+	<bean id="netsuiteOperationsManager" class="com.malkos.poppin.transport.NetsuiteOperationsManager">	
+		<property name="email" value="${netsuite_config_email}" />
+		<property name="password" value="${netsuite_config_password}" />
+		<property name="account" value="${netsuite_config_account}" />
+		<property name="role" value="${netsuite_config_role}" />
+		<property name="url" value="${netsuite_config_url}" />
+	</bean>
+	<bean id="globalPropertiesProvider" class="com.malkos.poppin.bootstrap.GlobalPropertiesProvider">
+		<property name="purchaseOrdersPath" value="${purchase_orders_path}" />
+	</bean>
+	<bean id="globalProperties" class="com.malkos.poppin.bootstrap.GlobalProperties">
+		<property name="localMessagesArchiveRootPath" value="${local_messages_archive_root_path}" />
+		<property name="purchaseOrderAbbr" value="${purchase_order}" />
+		<property name="functionalAckAbbr" value="${functional_acknowledgment}" />
+		<property name="confirmationMessageAbbr" value="${confirmation_message}" />
+		<property name="inventoryMessageAbbr" value="${inventory_message}" />
+		<property name="invoiceMessageAbbr" value="${invoice}" />
+		
+		<property name="ftpStoragePurchaseOrdersPath" value="${purchase_orders_path}" />
+		<property name="ftpStorageFaPath" value="${fa_messages_path}" />
+		<property name="ftpStorageComfirmationMessagePath" value="${confirmation_messages_path}" />
+		<property name="ftpStorageInvoiceMessagePath" value="${invoice_messages_path}" />
+		<property name="ftpStorageInventoryMessagePath" value="${inventory_messages_path}" />
+		
+		<property name="poppinPrivateKeyPath" value="${poppin_private_key}" />
+		<property name="staplesPublicKeyPath" value="${staples_public_key}" />
+		<property name="secretPassword" value="${secret_password}" />
+		
+		<property name="companyId" value="${company_id}" />
+		<property name="companyInternalId" value="${company_internal_id}" />
+		
+		<property name="multiplierToInvetoryAmount" value="${multiplier_to_invetory_amount}" />
+		<property name="multiplierToInvetoryAmountMoreThen100" value="${multiplier_to_invetory_amount_more_then_100}" />
+		<property name="inventoryThreshold" value="${inventory_threshold}" />
+		<property name="inventoryUpdateAutoretryAttempts" value="${inventory_update_autoretry_attempts}" />
+		<property name="inventoryUpdateAutoretryInterval" value="${inventory_update_autoretry_interval}" />	
+		
+		<property name="notificationEmailFrom" value="${notification_email_from}"/>
+		<property name="notificationEmailTo" value="${notification_emails_to}"/>
+		<property name="notificationEmailSubject" value="${notification_email_subject}"/>
+		<property name="nsUsername" value="${netsuite_config_email}"/>
+		<property name="environment" value="${environment}"/>	
+	</bean>
+	<bean id="mailSender" class="org.springframework.mail.javamail.JavaMailSenderImpl">
+		<property name="host" value="${notification_email_server_host}"/>
+  		<property name="port" value="${notification_email_server_port}"/>
+ 		<property name="username" value="${notification_email_server_smtp_user}"/>
+ 		<property name="password" value="${notification_email_server_stmp_password}"/>
+ 		<property name="javaMailProperties">
+            <props>
+                <prop key="mail.transport.protocol">smtp</prop>
+              	<prop key="mail.smtp.auth">true</prop>
+	            <prop key="mail.smtp.starttls.enable">true</prop>
+	            <prop key="mail.debug">false</prop>
+	            </props>
+	        </property>
+	</bean>
+    <bean id="notificationMailMessage" class="org.springframework.mail.SimpleMailMessage">
+        <property name="from" value="${notification_email_from}"/>
+        <property name="to" value="${notification_emails_to}"/>
+        <property name="subject" value="${notification_email_subject}"/>
+    </bean>
+</beans>
