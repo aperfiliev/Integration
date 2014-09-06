@@ -17,24 +17,24 @@ import org.slf4j.LoggerFactory;
 
 import com.malkos.poppin.integration.houzz.entities.NSRrequestDetails;
 import com.malkos.poppin.integration.houzz.entities.SearchResultWrapped;
-import com.netsuite.webservices.platform.core_2014_2.DataCenterUrls;
-import com.netsuite.webservices.platform.core_2014_2.Passport;
-import com.netsuite.webservices.platform.core_2014_2.Record;
-import com.netsuite.webservices.platform.core_2014_2.RecordRef;
-import com.netsuite.webservices.platform.core_2014_2.SearchRecord;
-import com.netsuite.webservices.platform.core_2014_2.SearchResult;
-import com.netsuite.webservices.platform.faults_2014_2.ExceededRecordCountFault;
-import com.netsuite.webservices.platform.faults_2014_2.ExceededRequestLimitFault;
-import com.netsuite.webservices.platform.faults_2014_2.ExceededRequestSizeFault;
-import com.netsuite.webservices.platform.faults_2014_2.ExceededUsageLimitFault;
-import com.netsuite.webservices.platform.faults_2014_2.InvalidCredentialsFault;
-import com.netsuite.webservices.platform.faults_2014_2.InvalidSessionFault;
-import com.netsuite.webservices.platform.faults_2014_2.UnexpectedErrorFault;
-import com.netsuite.webservices.platform.messages_2014_2.SearchPreferences;
-import com.netsuite.webservices.platform.messages_2014_2.WriteResponseList;
-import com.netsuite.webservices.platform_2014_2.NetSuiteBindingStub;
-import com.netsuite.webservices.platform_2014_2.NetSuitePortType;
-import com.netsuite.webservices.platform_2014_2.NetSuiteServiceLocator;
+import com.netsuite.webservices.platform.core_2014_1.DataCenterUrls;
+import com.netsuite.webservices.platform.core_2014_1.Passport;
+import com.netsuite.webservices.platform.core_2014_1.Record;
+import com.netsuite.webservices.platform.core_2014_1.RecordRef;
+import com.netsuite.webservices.platform.core_2014_1.SearchRecord;
+import com.netsuite.webservices.platform.core_2014_1.SearchResult;
+import com.netsuite.webservices.platform.faults_2014_1.ExceededRecordCountFault;
+import com.netsuite.webservices.platform.faults_2014_1.ExceededRequestLimitFault;
+import com.netsuite.webservices.platform.faults_2014_1.ExceededRequestSizeFault;
+import com.netsuite.webservices.platform.faults_2014_1.ExceededUsageLimitFault;
+import com.netsuite.webservices.platform.faults_2014_1.InvalidCredentialsFault;
+import com.netsuite.webservices.platform.faults_2014_1.InvalidSessionFault;
+import com.netsuite.webservices.platform.faults_2014_1.UnexpectedErrorFault;
+import com.netsuite.webservices.platform.messages_2014_1.SearchPreferences;
+import com.netsuite.webservices.platform.messages_2014_1.WriteResponseList;
+import com.netsuite.webservices.platform_2014_1.NetSuiteBindingStub;
+import com.netsuite.webservices.platform_2014_1.NetSuitePortType;
+import com.netsuite.webservices.platform_2014_1.NetSuiteServiceLocator;
 
 
 public class NetsuiteService {
@@ -95,14 +95,14 @@ public class NetsuiteService {
 		NetSuiteBindingStub stub = (NetSuiteBindingStub) port;
 		stub.setMaintainSession(false);
 		stub.clearHeaders();
-		SOAPHeaderElement searchPrefHeader = new SOAPHeaderElement("urn:messages_2014_2.platform.webservices.netsuite.com", "searchPreferences");
+		SOAPHeaderElement searchPrefHeader = new SOAPHeaderElement("urn:messages_2014_1.platform.webservices.netsuite.com", "searchPreferences");
 		SearchPreferences searchPrefs = new SearchPreferences();
 		searchPrefs.setPageSize(new Integer(500));
 		searchPrefs.setBodyFieldsOnly(searchBodyFieldsOnly);
 		searchPrefHeader.setObjectValue(searchPrefs);
 		stub.setHeader(searchPrefHeader);
 		
-		SOAPHeaderElement passportHeader = new SOAPHeaderElement("urn:messages_2014_2.platform.webservices.netsuite.com", "passport");
+		SOAPHeaderElement passportHeader = new SOAPHeaderElement("urn:messages_2014_1.platform.webservices.netsuite.com", "passport");
 		passportHeader.setObjectValue(passport);
 		stub.setHeader(passportHeader);
 	}
@@ -111,7 +111,7 @@ public class NetsuiteService {
 		stub.setMaintainSession(false);
 		stub.clearHeaders();
 		
-		SOAPHeaderElement passportHeader = new SOAPHeaderElement("urn:messages_2014_2.platform.webservices.netsuite.com", "passport");
+		SOAPHeaderElement passportHeader = new SOAPHeaderElement("urn:messages_2014_1.platform.webservices.netsuite.com", "passport");
 		passportHeader.setObjectValue(passport);
 		stub.setHeader(passportHeader);
 	}
