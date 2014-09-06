@@ -28,7 +28,7 @@ import com.malkos.poppin.validation.QuillDropShipPoValidator;
 import com.malkos.poppin.validation.StaplesBulkImportValidator;
 import com.malkos.poppin.validation.StaplesDropShipValidator;
 import com.malkos.poppin.validation.StaplesPromoValidator;
-import com.netsuite.webservices.transactions.sales_2014_2.types.SalesOrderOrderStatus;
+import com.netsuite.webservices.transactions.sales_2014_1.types.SalesOrderOrderStatus;
 
 public class StaplesRetailer extends RetailerAbstract {
 	

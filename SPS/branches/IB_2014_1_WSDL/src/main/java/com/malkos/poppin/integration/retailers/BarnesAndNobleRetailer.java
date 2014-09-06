@@ -19,7 +19,7 @@ import com.malkos.poppin.transport.NetsuiteOperationException;
 import com.malkos.poppin.util.ErrorMessageWrapper;
 import com.malkos.poppin.util.ErrorsCollector;
 import com.malkos.poppin.validation.BarnesAndNobleCrossDockValidator;
-import com.netsuite.webservices.transactions.sales_2014_2.types.SalesOrderOrderStatus;
+import com.netsuite.webservices.transactions.sales_2014_1.types.SalesOrderOrderStatus;
 
 public class BarnesAndNobleRetailer extends RetailerAbstract {
 	

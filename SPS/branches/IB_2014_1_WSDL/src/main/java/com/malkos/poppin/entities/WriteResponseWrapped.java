@@ -1,6 +1,6 @@
 package com.malkos.poppin.entities;
 
-import com.netsuite.webservices.platform.messages_2014_2.WriteResponse;
+import com.netsuite.webservices.platform.messages_2014_1.WriteResponse;
 
 public class WriteResponseWrapped {
 	private NSRrequestDetails requestDeatils;

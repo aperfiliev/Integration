@@ -3,7 +3,7 @@ package com.malkos.poppin.bootstrap;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.netsuite.webservices.platform.common_2014_2.types.Country;
+import com.netsuite.webservices.platform.common_2014_1.types.Country;
 
 public class GlobalProperties {
 	

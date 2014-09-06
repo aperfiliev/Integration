@@ -46,83 +46,82 @@ import com.malkos.poppin.persistence.dao.LineItemIntegrationIdentifierDAO;
 import com.malkos.poppin.persistence.dao.PurchaseOrderDAO;
 import com.malkos.poppin.util.ErrorMessageWrapper;
 import com.malkos.poppin.util.ErrorsCollector;
-import com.netsuite.webservices.lists.accounting_2014_2.InventoryItem;
-import com.netsuite.webservices.lists.accounting_2014_2.InventoryItemLocations;
-import com.netsuite.webservices.lists.accounting_2014_2.ItemMember;
-import com.netsuite.webservices.lists.accounting_2014_2.ItemSearch;
-import com.netsuite.webservices.lists.accounting_2014_2.ItemSearchAdvanced;
-import com.netsuite.webservices.lists.accounting_2014_2.ItemSearchRow;
-import com.netsuite.webservices.lists.accounting_2014_2.KitItem;
-import com.netsuite.webservices.lists.relationships_2014_2.Customer;
-import com.netsuite.webservices.lists.relationships_2014_2.CustomerAddressbook;
-import com.netsuite.webservices.lists.relationships_2014_2.CustomerAddressbookList;
-import com.netsuite.webservices.lists.relationships_2014_2.CustomerSearch;
-import com.netsuite.webservices.lists.relationships_2014_2.CustomerSearchAdvanced;
-import com.netsuite.webservices.lists.relationships_2014_2.CustomerSearchRow;
-import com.netsuite.webservices.platform.common_2014_2.Address;
-import com.netsuite.webservices.platform.common_2014_2.CustomerSearchBasic;
-import com.netsuite.webservices.platform.common_2014_2.CustomerSearchRowBasic;
-import com.netsuite.webservices.platform.common_2014_2.InventoryDetailSearchBasic;
-import com.netsuite.webservices.platform.common_2014_2.ItemSearchBasic;
-import com.netsuite.webservices.platform.common_2014_2.ItemSearchRowBasic;
-import com.netsuite.webservices.platform.common_2014_2.LocationSearchBasic;
-import com.netsuite.webservices.platform.common_2014_2.TransactionSearchBasic;
-import com.netsuite.webservices.platform.common_2014_2.TransactionSearchRowBasic;
-import com.netsuite.webservices.platform.common_2014_2.types.Country;
-import com.netsuite.webservices.platform.core_2014_2.BooleanCustomFieldRef;
-import com.netsuite.webservices.platform.core_2014_2.CustomFieldList;
-import com.netsuite.webservices.platform.core_2014_2.CustomFieldRef;
-import com.netsuite.webservices.platform.core_2014_2.GetItemAvailabilityResult;
-import com.netsuite.webservices.platform.core_2014_2.Record;
-import com.netsuite.webservices.platform.core_2014_2.RecordList;
-import com.netsuite.webservices.platform.core_2014_2.RecordRef;
-import com.netsuite.webservices.platform.core_2014_2.SearchBooleanField;
-import com.netsuite.webservices.platform.core_2014_2.SearchColumnBooleanField;
-import com.netsuite.webservices.platform.core_2014_2.SearchColumnCustomField;
-import com.netsuite.webservices.platform.core_2014_2.SearchColumnCustomFieldList;
-import com.netsuite.webservices.platform.core_2014_2.SearchColumnDateField;
-import com.netsuite.webservices.platform.core_2014_2.SearchColumnDoubleField;
-import com.netsuite.webservices.platform.core_2014_2.SearchColumnEnumSelectField;
-import com.netsuite.webservices.platform.core_2014_2.SearchColumnLongField;
-import com.netsuite.webservices.platform.core_2014_2.SearchColumnSelectField;
-import com.netsuite.webservices.platform.core_2014_2.SearchColumnStringCustomField;
-import com.netsuite.webservices.platform.core_2014_2.SearchColumnStringField;
-import com.netsuite.webservices.platform.core_2014_2.SearchColumnTextNumberField;
-import com.netsuite.webservices.platform.core_2014_2.SearchDoubleField;
-import com.netsuite.webservices.platform.core_2014_2.SearchEnumMultiSelectField;
-import com.netsuite.webservices.platform.core_2014_2.SearchLongField;
-import com.netsuite.webservices.platform.core_2014_2.SearchMultiSelectField;
-import com.netsuite.webservices.platform.core_2014_2.SearchResult;
-import com.netsuite.webservices.platform.core_2014_2.SearchRow;
-import com.netsuite.webservices.platform.core_2014_2.SearchRowList;
-import com.netsuite.webservices.platform.core_2014_2.SearchStringField;
-import com.netsuite.webservices.platform.core_2014_2.SearchTextNumberField;
-import com.netsuite.webservices.platform.core_2014_2.StatusDetail;
-import com.netsuite.webservices.platform.core_2014_2.StringCustomFieldRef;
-import com.netsuite.webservices.platform.core_2014_2.types.RecordType;
-import com.netsuite.webservices.platform.core_2014_2.types.SearchDoubleFieldOperator;
-import com.netsuite.webservices.platform.core_2014_2.types.SearchEnumMultiSelectFieldOperator;
-import com.netsuite.webservices.platform.core_2014_2.types.SearchLongFieldOperator;
-import com.netsuite.webservices.platform.core_2014_2.types.SearchMultiSelectFieldOperator;
-import com.netsuite.webservices.platform.core_2014_2.types.SearchStringFieldOperator;
-import com.netsuite.webservices.platform.core_2014_2.types.SearchTextNumberFieldOperator;
-import com.netsuite.webservices.platform.messages_2014_2.WriteResponse;
-import com.netsuite.webservices.platform.messages_2014_2.WriteResponseList;
-import com.netsuite.webservices.setup.customization_2014_2.CustomRecord;
-import com.netsuite.webservices.setup.customization_2014_2.types.CustomizationFilterCompareType;
-import com.netsuite.webservices.transactions.sales_2014_2.ItemFulfillment;
-import com.netsuite.webservices.transactions.sales_2014_2.ItemFulfillmentItem;
-import com.netsuite.webservices.transactions.sales_2014_2.ItemFulfillmentPackage;
-import com.netsuite.webservices.transactions.sales_2014_2.ItemFulfillmentPackageList;
-import com.netsuite.webservices.transactions.sales_2014_2.SalesOrder;
-import com.netsuite.webservices.transactions.sales_2014_2.SalesOrderItem;
-import com.netsuite.webservices.transactions.sales_2014_2.SalesOrderItemList;
-import com.netsuite.webservices.transactions.sales_2014_2.TransactionSearch;
-import com.netsuite.webservices.transactions.sales_2014_2.TransactionSearchAdvanced;
-import com.netsuite.webservices.transactions.sales_2014_2.TransactionSearchRow;
-import com.netsuite.webservices.transactions.sales_2014_2.types.SalesOrderOrderStatus;
-import com.netsuite.webservices.transactions.sales_2014_2.types.TransactionStatus;
-import com.netsuite.webservices.transactions.sales_2014_2.types.TransactionType;
+import com.netsuite.webservices.lists.accounting_2014_1.InventoryItem;
+import com.netsuite.webservices.lists.accounting_2014_1.InventoryItemLocations;
+import com.netsuite.webservices.lists.accounting_2014_1.ItemMember;
+import com.netsuite.webservices.lists.accounting_2014_1.ItemSearch;
+import com.netsuite.webservices.lists.accounting_2014_1.ItemSearchAdvanced;
+import com.netsuite.webservices.lists.accounting_2014_1.ItemSearchRow;
+import com.netsuite.webservices.lists.accounting_2014_1.KitItem;
+import com.netsuite.webservices.lists.relationships_2014_1.Customer;
+import com.netsuite.webservices.lists.relationships_2014_1.CustomerAddressbook;
+import com.netsuite.webservices.lists.relationships_2014_1.CustomerAddressbookList;
+import com.netsuite.webservices.lists.relationships_2014_1.CustomerSearch;
+import com.netsuite.webservices.lists.relationships_2014_1.CustomerSearchAdvanced;
+import com.netsuite.webservices.lists.relationships_2014_1.CustomerSearchRow;
+import com.netsuite.webservices.platform.common_2014_1.CustomerSearchBasic;
+import com.netsuite.webservices.platform.common_2014_1.CustomerSearchRowBasic;
+import com.netsuite.webservices.platform.common_2014_1.InventoryDetailSearchBasic;
+import com.netsuite.webservices.platform.common_2014_1.ItemSearchBasic;
+import com.netsuite.webservices.platform.common_2014_1.ItemSearchRowBasic;
+import com.netsuite.webservices.platform.common_2014_1.LocationSearchBasic;
+import com.netsuite.webservices.platform.common_2014_1.TransactionSearchBasic;
+import com.netsuite.webservices.platform.common_2014_1.TransactionSearchRowBasic;
+import com.netsuite.webservices.platform.common_2014_1.types.Country;
+import com.netsuite.webservices.platform.core_2014_1.BooleanCustomFieldRef;
+import com.netsuite.webservices.platform.core_2014_1.CustomFieldList;
+import com.netsuite.webservices.platform.core_2014_1.CustomFieldRef;
+import com.netsuite.webservices.platform.core_2014_1.GetItemAvailabilityResult;
+import com.netsuite.webservices.platform.core_2014_1.Record;
+import com.netsuite.webservices.platform.core_2014_1.RecordList;
+import com.netsuite.webservices.platform.core_2014_1.RecordRef;
+import com.netsuite.webservices.platform.core_2014_1.SearchBooleanField;
+import com.netsuite.webservices.platform.core_2014_1.SearchColumnBooleanField;
+import com.netsuite.webservices.platform.core_2014_1.SearchColumnCustomField;
+import com.netsuite.webservices.platform.core_2014_1.SearchColumnCustomFieldList;
+import com.netsuite.webservices.platform.core_2014_1.SearchColumnDateField;
+import com.netsuite.webservices.platform.core_2014_1.SearchColumnDoubleField;
+import com.netsuite.webservices.platform.core_2014_1.SearchColumnEnumSelectField;
+import com.netsuite.webservices.platform.core_2014_1.SearchColumnLongField;
+import com.netsuite.webservices.platform.core_2014_1.SearchColumnSelectField;
+import com.netsuite.webservices.platform.core_2014_1.SearchColumnStringCustomField;
+import com.netsuite.webservices.platform.core_2014_1.SearchColumnStringField;
+import com.netsuite.webservices.platform.core_2014_1.SearchColumnTextNumberField;
+import com.netsuite.webservices.platform.core_2014_1.SearchDoubleField;
+import com.netsuite.webservices.platform.core_2014_1.SearchEnumMultiSelectField;
+import com.netsuite.webservices.platform.core_2014_1.SearchLongField;
+import com.netsuite.webservices.platform.core_2014_1.SearchMultiSelectField;
+import com.netsuite.webservices.platform.core_2014_1.SearchResult;
+import com.netsuite.webservices.platform.core_2014_1.SearchRow;
+import com.netsuite.webservices.platform.core_2014_1.SearchRowList;
+import com.netsuite.webservices.platform.core_2014_1.SearchStringField;
+import com.netsuite.webservices.platform.core_2014_1.SearchTextNumberField;
+import com.netsuite.webservices.platform.core_2014_1.StatusDetail;
+import com.netsuite.webservices.platform.core_2014_1.StringCustomFieldRef;
+import com.netsuite.webservices.platform.core_2014_1.types.RecordType;
+import com.netsuite.webservices.platform.core_2014_1.types.SearchDoubleFieldOperator;
+import com.netsuite.webservices.platform.core_2014_1.types.SearchEnumMultiSelectFieldOperator;
+import com.netsuite.webservices.platform.core_2014_1.types.SearchLongFieldOperator;
+import com.netsuite.webservices.platform.core_2014_1.types.SearchMultiSelectFieldOperator;
+import com.netsuite.webservices.platform.core_2014_1.types.SearchStringFieldOperator;
+import com.netsuite.webservices.platform.core_2014_1.types.SearchTextNumberFieldOperator;
+import com.netsuite.webservices.platform.messages_2014_1.WriteResponse;
+import com.netsuite.webservices.platform.messages_2014_1.WriteResponseList;
+import com.netsuite.webservices.setup.customization_2014_1.CustomRecord;
+import com.netsuite.webservices.setup.customization_2014_1.types.CustomizationFilterCompareType;
+import com.netsuite.webservices.transactions.sales_2014_1.ItemFulfillment;
+import com.netsuite.webservices.transactions.sales_2014_1.ItemFulfillmentItem;
+import com.netsuite.webservices.transactions.sales_2014_1.ItemFulfillmentPackage;
+import com.netsuite.webservices.transactions.sales_2014_1.ItemFulfillmentPackageList;
+import com.netsuite.webservices.transactions.sales_2014_1.SalesOrder;
+import com.netsuite.webservices.transactions.sales_2014_1.SalesOrderItem;
+import com.netsuite.webservices.transactions.sales_2014_1.SalesOrderItemList;
+import com.netsuite.webservices.transactions.sales_2014_1.TransactionSearch;
+import com.netsuite.webservices.transactions.sales_2014_1.TransactionSearchAdvanced;
+import com.netsuite.webservices.transactions.sales_2014_1.TransactionSearchRow;
+import com.netsuite.webservices.transactions.sales_2014_1.types.SalesOrderOrderStatus;
+import com.netsuite.webservices.transactions.sales_2014_1.types.TransactionStatus;
+import com.netsuite.webservices.transactions.sales_2014_1.types.TransactionType;
 
 public class NetsuiteOperationsManager implements INetsuiteOperationsManager {
 	
@@ -456,50 +455,46 @@ public class NetsuiteOperationsManager implements INetsuiteOperationsManager {
 		List<CustomerAddressbook> listCustomerAddressbook = new ArrayList<CustomerAddressbook>();
 		CustomerAddressbookList addressbookList = new CustomerAddressbookList();
 		CustomerAddressbook defaultBillingAddress = new CustomerAddressbook();
-		CustomerAddressbook defaultShippingAddress = new CustomerAddressbook();
+		CustomerAddressbook defaultShippingAddress = new CustomerAddressbook();		
 		
-		Address shippingAddress = new Address();
-		shippingAddress.setAddressee(document.getShipToName());
-		shippingAddress.setAddr1(document.getShipToAddress1());
+		defaultShippingAddress.setAddressee(document.getShipToName());
+		defaultShippingAddress.setAddr1(document.getShipToAddress1());
 		if (document.getShipToAddress2() != null)
-			shippingAddress.setAddr2(document.getShipToAddress2());
+			defaultShippingAddress.setAddr2(document.getShipToAddress2());
 		
-		shippingAddress.setCity(document.getShipToCity());
-		shippingAddress.setState(document.getShipToState());
-		shippingAddress.setZip(document.getShipToPostalCode());
+		defaultShippingAddress.setCity(document.getShipToCity());
+		defaultShippingAddress.setState(document.getShipToState());
+		defaultShippingAddress.setZip(document.getShipToPostalCode());
 		if(null != document.getCustomerPhone())
-			shippingAddress.setAddrPhone(document.getCustomerPhone());
-		shippingAddress.setCountry(Country._unitedStates);
-		defaultShippingAddress.setAddressbookAddress(shippingAddress);		
+			defaultShippingAddress.setPhone(document.getCustomerPhone());
+		defaultShippingAddress.setCountry(Country._unitedStates);
 		defaultShippingAddress.setDefaultShipping(true);
-		listCustomerAddressbook.add(defaultShippingAddress);
-		
-		Address billingAddress = new Address();
+		listCustomerAddressbook.add(defaultShippingAddress);		
 		
 		if((document.getBillToName() != null) && (document.getBillToAddress1() != null) && (document.getBillToCity() != null) && (document.getBillToState() != null) 
 				&& (document.getBillToPostalCode() != null)/* && (poPojo.getCustomerPhone() != null)*/){
-			billingAddress.setAddressee(document.getBillToName());
-			billingAddress.setAddr1(document.getBillToAddress1());
+			defaultBillingAddress.setAddressee(document.getBillToName());
+			defaultBillingAddress.setAddr1(document.getBillToAddress1());
 			if (document.getBillToAddress2() != null)
-				billingAddress.setAddr2(document.getBillToAddress2());
+				defaultBillingAddress.setAddr2(document.getBillToAddress2());
 			if (document.getBillToAddress3() != null)
-				billingAddress.setAddr3(document.getBillToAddress3());
+				defaultBillingAddress.setAddr3(document.getBillToAddress3());
 			
-			billingAddress.setCity(document.getBillToCity());
-			billingAddress.setState(document.getBillToState());
-			billingAddress.setZip(document.getBillToPostalCode());
+			defaultBillingAddress.setCity(document.getBillToCity());
+			defaultBillingAddress.setState(document.getBillToState());
+			defaultBillingAddress.setZip(document.getBillToPostalCode());
 			if(null != document.getCustomerPhone())
-				billingAddress.setAddrPhone(document.getCustomerPhone());
-			billingAddress.setCountry(Country._unitedStates);
-			defaultBillingAddress.setDefaultBilling(true);
-			defaultBillingAddress.setAddressbookAddress(billingAddress);
+				defaultBillingAddress.setPhone(document.getCustomerPhone());
+			defaultBillingAddress.setCountry(Country._unitedStates);
+			defaultBillingAddress.setDefaultBilling(true);			
 		}
 		
-		if(document.getBillToName() == null)
+		if(defaultBillingAddress.getAddressee() == null){
 			defaultShippingAddress.setDefaultBilling(true);
-		
-		listCustomerAddressbook.add(defaultBillingAddress);
-		
+		}
+		else {
+			listCustomerAddressbook.add(defaultBillingAddress);
+		}
 		CustomerAddressbook[] addressbook = new CustomerAddressbook[listCustomerAddressbook.size()];
 		int index = 0;
 		for(CustomerAddressbook book : listCustomerAddressbook){
@@ -507,7 +502,7 @@ public class NetsuiteOperationsManager implements INetsuiteOperationsManager {
 			index++;
 		}
 		addressbookList.setAddressbook(addressbook);
-		cust.setAddressbookList(addressbookList);
+		cust.setAddressbookList(addressbookList);		
 		return cust;
 	}
 
@@ -770,18 +765,18 @@ public class NetsuiteOperationsManager implements INetsuiteOperationsManager {
 						fulfillmentPojo.setShipToState(fulfillment.getTransactionShipAddress().getShipState());
 						fulfillmentPojo.setShipToName(fulfillment.getTransactionShipAddress().getShipAddressee());						
 						
-						String NSshipcountry = fulfillment.getTransactionShipAddress().getShipCountry().toString();*/
+						String NSshipcountry = fulfillment.getTransactionShipAddress().getShipCountry().toString();*/						
 						
-						fulfillmentPojo.setShipToAddress1(fulfillment.getShippingAddress().getAddr1());
-						if (null != fulfillment.getShippingAddress().getAddr2()){
-							fulfillmentPojo.setShipToAddress2(fulfillment.getShippingAddress().getAddr2());
+						fulfillmentPojo.setShipToAddress1(fulfillment.getTransactionShipAddress().getShipAddr1());
+						if (null != fulfillment.getTransactionShipAddress().getShipAddr2()){
+							fulfillmentPojo.setShipToAddress2(fulfillment.getTransactionShipAddress().getShipAddr2());
 						}
-						fulfillmentPojo.setShipToCity(fulfillment.getShippingAddress().getCity());
-						fulfillmentPojo.setShipToPostalCode(fulfillment.getShippingAddress().getZip());
-						fulfillmentPojo.setShipToState(fulfillment.getShippingAddress().getState());
-						fulfillmentPojo.setShipToName(fulfillment.getShippingAddress().getAddressee());						
+						fulfillmentPojo.setShipToCity(fulfillment.getTransactionShipAddress().getShipCity());
+						fulfillmentPojo.setShipToPostalCode(fulfillment.getTransactionShipAddress().getShipZip());
+						fulfillmentPojo.setShipToState(fulfillment.getTransactionShipAddress().getShipState());
+						fulfillmentPojo.setShipToName(fulfillment.getTransactionShipAddress().getShipAddressee());						
 						
-						String NSshipcountry = fulfillment.getShippingAddress().getCountry().toString();
+						String NSshipcountry = fulfillment.getTransactionShipAddress().getShipCountry().toString();
 						
 						String country = properties.countryMappings.containsKey(NSshipcountry) ? properties.countryMappings.get(NSshipcountry) : properties.DEFAULT_SHIPPING_COUNTRY; 
 						fulfillmentPojo.setShipToCountry(country);						
