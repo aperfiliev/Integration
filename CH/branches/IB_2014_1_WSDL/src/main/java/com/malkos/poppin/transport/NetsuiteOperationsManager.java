@@ -1908,7 +1908,7 @@ public class NetsuiteOperationsManager implements INetsuiteOperationsManager {
 							InventoryKitPojo kitPojo = (InventoryKitPojo) intIdToRecordMap.get(internalId);
 							InventoryKitSubItemPojo subItem = new InventoryKitSubItemPojo();
 							subItem.setQtyInKit(isrb.getMemberQuantity()[0].getSearchValue());
-							subItem.setInternalId(isrb.getMemberItem()[0].getSearchValue().getInternalId());
+							subItem.setInternalId(isrb.getMemberItem()[0].getSearchValue().getInternalId());							
 							kitPojo.getSubItemsList().add(subItem);
 						} else {							
 							InventoryKitPojo kitPojo = new InventoryKitPojo();
@@ -1920,7 +1920,7 @@ public class NetsuiteOperationsManager implements INetsuiteOperationsManager {
 							kitPojo.setSubItemsList(new ArrayList<InventoryKitSubItemPojo>());
 							InventoryKitSubItemPojo subItem = new InventoryKitSubItemPojo();
 							subItem.setQtyInKit(isrb.getMemberQuantity()[0].getSearchValue());
-							subItem.setInternalId(isrb.getMemberItem()[0].getSearchValue().getInternalId());
+							subItem.setInternalId(isrb.getMemberItem()[0].getSearchValue().getInternalId());							
 							kitPojo.getSubItemsList().add(subItem);
 							if (isrb.getLocation()!=null){
 								kitPojo.setNsLocationId(isrb.getLocation()[0].getSearchValue().getInternalId());
@@ -1978,7 +1978,7 @@ public class NetsuiteOperationsManager implements INetsuiteOperationsManager {
 
 	//here we separate search results for combined search and make list of nested Inventory items (inside KIT/PACKAGE items) that are required to load data from NS
 	private Collection<InventoryPojo> proccessSearchResultsForInventoryUpdate(List<SearchRowList> searchRowListList , Map<String,VendorSkuToModelNumMapDAO> internalIdtolineItemDAOMap) throws NetsuiteOperationException{
-		 Map<String, InventoryPojo> internalIdToInventoryPojoMap = null;
+		Map<String, InventoryPojo> internalIdToInventoryPojoMap = null;
 		 Set<String> iiIdsToPreloadSet = new HashSet<String>();			
 		 Map<String,InventoryItemPojo> internalIdToHouzInventoryItemPojoFullMap = new HashMap<>();		
 		 
@@ -2159,35 +2159,36 @@ public class NetsuiteOperationsManager implements INetsuiteOperationsManager {
 				if (sr instanceof ItemSearchRow){
 					ItemSearchRow isr = (ItemSearchRow)sr;
 					ItemSearchRowBasic isrb = isr.getBasic();
-					LocationSearchRowBasic locationJoin = isr.getInventoryLocationJoin();
+					LocationSearchRowBasic locationJoin = isr.getInventoryLocationJoin();					
 					String internalId = isrb.getInternalId()[0].getSearchValue().getInternalId();
 					String type = isrb.getType()[0].getSearchValue();
 					if (type.equalsIgnoreCase("_inventoryItem")){
-						if (internalIdToHouzInventoryItemPojoFullMap.containsKey(internalId)){	
-							InventoryItemPojo itemPojo = (InventoryItemPojo) internalIdToHouzInventoryItemPojoFullMap.get(internalId);
-							
+						if (internalIdToHouzInventoryItemPojoFullMap.containsKey(internalId)){								
+							InventoryItemPojo itemPojo = (InventoryItemPojo) internalIdToHouzInventoryItemPojoFullMap.get(internalId);							
 							LocationQuantitiesAvailiable locQty = new LocationQuantitiesAvailiable();
 							locQty.setLocationInternalId(locationJoin.getInternalId()[0].getSearchValue().getInternalId());
 							if ((isrb.getLocationQuantityAvailable()!=null)&&(isrb.getLocationQuantityAvailable()[0]!=null)&&(isrb.getLocationQuantityAvailable()[0].getSearchValue()!=null)){
 								locQty.setLocationQtyAvailiable(isrb.getLocationQuantityAvailable()[0].getSearchValue());
 							} else {
 								locQty.setLocationQtyAvailiable(0d);
-							}							
+							}												
 							itemPojo.getLocQtyList().add(locQty);
 						} else {
 							InventoryItemPojo itemPojo = new InventoryItemPojo();
 							//itemPojo.setInactive(isrb.getIsInactive()[0].getSearchValue());
 							itemPojo.setInternalId(internalId);
-							//itemPojo.setPrice(isrb.getBasePrice()[0].getSearchValue());							
-							itemPojo.setUPC(isrb.getUpcCode()[0].getSearchValue());	
+							//itemPojo.setPrice(isrb.getBasePrice()[0].getSearchValue());
+							if (isrb.getUpcCode()!=null){
+								itemPojo.setUPC(isrb.getUpcCode()[0].getSearchValue());	
+							}													
 							itemPojo.setDescription(isrb.getPurchaseDescription()[0].getSearchValue());
 							LocationQuantitiesAvailiable locQty = new LocationQuantitiesAvailiable();
-							locQty.setLocationInternalId(locationJoin.getInternalId()[0].getSearchValue().getInternalId());
+							locQty.setLocationInternalId(locationJoin.getInternalId()[0].getSearchValue().getInternalId());							
 							if ((isrb.getLocationQuantityAvailable()!=null)&&(isrb.getLocationQuantityAvailable()[0]!=null)&&(isrb.getLocationQuantityAvailable()[0].getSearchValue()!=null)){
 								locQty.setLocationQtyAvailiable(isrb.getLocationQuantityAvailable()[0].getSearchValue());
 							} else {
 								locQty.setLocationQtyAvailiable(0d);
-							}
+							}														
 							itemPojo.setLocQtyList(new ArrayList<LocationQuantitiesAvailiable>());
 							itemPojo.getLocQtyList().add(locQty);
 							if (isrb.getPreferredLocation()!=null){
