@@ -34,7 +34,7 @@ public class SpsPoDocument {
 	private static final String SHIPMENT_WEIGHT_UM = "LB";
 	private static final String EQUIPMENT_DESCRIPTION = "000";	
 	private static final String SHIPMENT_ORDER_STATUS_CODE = "pendingBilling";
-	private static final String CURRENT_SCHEDULLED_DELIVERY_TIME = "040000";
+	private static final String CURRENT_SCHEDULLED_DELIVERY_TIME = "04:00:00";
 	private static final String CARRIER_ALPHA_CODE = "UPSG";
 	private static final String FOB_TITLE_PASSAGE_CODE = "OR";
 	private static final String FOB_TITLE_PASSAGE_LOCATION = "Poppin Warehouse (NJ)";

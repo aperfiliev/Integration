@@ -74,11 +74,11 @@ public class QuillDropShipXmlMessageGenerator extends XmlDocumentGenerator imple
 		SimpleDateFormat basicDatePlusTimeFormat = new SimpleDateFormat("yyyy-MM-dd HH-mm-ss");
 		SimpleDateFormat basicDatePlusTimeDashedFormat = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss");
 		SimpleDateFormat basicTimeFormat = new SimpleDateFormat("HHmmss");
-		
+		SimpleDateFormat basicTimeFormatDoublePointed = new SimpleDateFormat("HH:mm:ss");
 		Date todayNow = new Date();
 		
 		String todayNowStrDashed = basicDatePlusTimeDashedFormat.format(todayNow);
-		String shipNoticeTime = basicTimeFormat.format(todayNow);
+		String shipNoticeTime = basicTimeFormatDoublePointed.format(todayNow);
 		String currentScheduledDeliveryDateString = null;
 		String currentScheduledDeliveryTimeString = null;
 		
