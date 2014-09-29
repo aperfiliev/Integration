@@ -154,7 +154,7 @@ public class QuillDropShipXmlMessageGenerator extends XmlDocumentGenerator imple
 		createElementAndAppendItToparent(fulfillmentPojo.getShipmentTrackingNumbers(), "BillOfLadingNumber", asnXmlDocument, shipmentHeader );
 		createElementAndAppendItToparent(fulfillmentPojo.getShipmentTrackingNumbers(), "CarrierProNumber", asnXmlDocument, shipmentHeader );
 		createElementAndAppendItToparent(currentScheduledDeliveryDateString, "CurrentScheduledDeliveryDate", asnXmlDocument, shipmentHeader );
-		createElementAndAppendItToparent(document.getCurrentSchedulledDeliveryTime(), "CurrentScheduledDeliveryTime", asnXmlDocument, shipmentHeader );
+		//createElementAndAppendItToparent(document.getCurrentSchedulledDeliveryTime(), "CurrentScheduledDeliveryTime", asnXmlDocument, shipmentHeader );
 		
 		createElementIfPossibleAndAppendItToparent(document.getCarrierAlphaCode(), "CarrierAlphaCode", asnXmlDocument, shipmentHeader );
 		createElementIfPossibleAndAppendItToparent(document.getCarrierEquipmentInitial(), "CarrierEquipmentInitial", asnXmlDocument, shipmentHeader );
