@@ -69,8 +69,7 @@ public class SpsStaplesCrossDockPoDocument extends SpsPoDocument {
 	}
 	public String getCarrierAlphaCodeUpsn() {
 		return CARRIER_ALPHA_CODE_UPSN;
-	}
-	@Override
+	}	
 	public String getCurrentSchedulledDeliveryTime() {
 		return CURRENT_SCHEDULED_DELIVERY_TIME;
 	}
