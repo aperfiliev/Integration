@@ -21,7 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.malkos.poppin.bootstrap.GlobalProperties;
 import com.malkos.poppin.bootstrap.GlobalPropertiesProvider;
-import com.malkos.poppin.encryption.EncryptionManager;
+//import com.malkos.poppin.encryption.EncryptionManager;
 import com.malkos.poppin.entities.CHIntegrationError;
 import com.malkos.poppin.entities.CustomerShppingAddressPojo;
 import com.malkos.poppin.entities.MessageType;
@@ -45,7 +45,7 @@ public static final Logger logger = LoggerFactory.getLogger(InvoiceMessageFlowSe
 	@Autowired
 	IPersistenceManager persistanceManager;	
 	
-	private EncryptionManager encManager; 
+	//private EncryptionManager encManager; 
 
 	@Override
 	public void processOrderInvoicesFromPoppin() {
@@ -63,7 +63,7 @@ public static final Logger logger = LoggerFactory.getLogger(InvoiceMessageFlowSe
 		List<String> poNumbersToUpdate = new ArrayList<String>();
 		Map<String, String> itemInternalIdToItemNumberMap = new HashMap<String, String>();
 		Map<String, CustomerShppingAddressPojo> salesOrderIdToShippingAddressMap = new HashMap<String, CustomerShppingAddressPojo>();
-		String output = "";
+		String filePath = "";
 		//2.
 		if(!poIds.isEmpty())
 		{
@@ -83,7 +83,7 @@ public static final Logger logger = LoggerFactory.getLogger(InvoiceMessageFlowSe
 			}
 			if(!records.isEmpty()){
 				try {
-					output = XmlParserUtil.convertSalesOrderListToOrderInvoicesMessage(records, itemInternalIdToItemNumberMap, salesOrderIdToShippingAddressMap);
+					filePath = XmlParserUtil.convertSalesOrderListToOrderInvoicesMessage(records, itemInternalIdToItemNumberMap, salesOrderIdToShippingAddressMap);
 					for (SalesOrder so : records) {
 						if (so.getOtherRefNum() != null){
 							poNumbersToUpdate.add(so.getOtherRefNum());
@@ -108,41 +108,21 @@ public static final Logger logger = LoggerFactory.getLogger(InvoiceMessageFlowSe
 		else{
 			logger.info("There are no sales orders in pending billed or billed state in application DB.");
 		}
-		return output;
+		return filePath;
 	}
 	
 	private List<OutgoingMessageDAO> saveInvoiceMessage(String orderInvoicesXml) {
-		List<OutgoingMessageDAO> messageList = new ArrayList<>();
-		GlobalProperties properties = GlobalPropertiesProvider.getGlobalProperties();
-		logger.info("Saving order invoices");
-
-		//String pathTempFile = "xmlsource/encrypted/confirm.pgp";
-		String todayNow = new SimpleDateFormat(properties.SPECIAL_FILE_NAME_DATE_FORMAT).format(new Date());
-		String pathTempFile = properties.STAPLES_INVOICE_MESSAGE_PREFIX + todayNow +  ".pgp";
-
-		// 1. Encrypt the file with EncryptionManager with CommerceHub
-		// public
-		// key
-		logger.info("1. Encrypt the file with EncryptionManager.");
-		try {
-			encManager = new EncryptionManager();
-			byte[] encrypted = encManager.encrypt(new ByteArrayInputStream(
-					orderInvoicesXml.getBytes()));
-			String messagePath = properties.getInvoiceEncryptedPath() +  pathTempFile;
-			FileOutputStream str = new FileOutputStream(messagePath);
-
-			IOUtils.write(encrypted, str);
-			logger.info(str.toString());
-			str.close();
+		List<OutgoingMessageDAO> messageList = new ArrayList<>();		
+		logger.info("Saving order invoices");	
+		try {		
 			OutgoingMessageDAO omDAO = new OutgoingMessageDAO();
-			omDAO.setMessagePath(messagePath);
+			omDAO.setMessagePath(orderInvoicesXml);
 			omDAO.setMessageStatus(OutgoingMessageStatus.PENDING_FOR_SENDING);
 			omDAO.setMessageType(MessageType.ORDER_INVOICE);
 			messageList.add(omDAO);
 		} catch (Exception ex) {
 			String errorMessage = ex.getMessage();
-			logger.info(errorMessage);
-			//ErrorsCollector.addCommonErrorMessage(errorMessage);
+			logger.info(errorMessage);			
 			ErrorsCollector.addCommonErrorMessage(new CHIntegrationError(errorMessage));
 		}
 		return messageList;

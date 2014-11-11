@@ -249,9 +249,8 @@ public class XmlParserUtil {
 				//create file
 				DOMSource source = new DOMSource(doc);
 				String todayNow = new SimpleDateFormat(GlobalProperties.SPECIAL_FILE_NAME_DATE_FORMAT).format(new Date());
-				StreamResult result = new StreamResult(new
-				//File("resources/xml/fa_"+batchNumber+ Integer.toString(outputs.size()) +".xml"));
-				File(properties.getFuncAckDecryptedPath() + GlobalProperties.STAPLES_FA_MESSAGE_PREFIX + todayNow + "_" + Integer.toString(outputs.size()) +".xml"));
+				String filePath = properties.getFuncAckDecryptedPath() + GlobalProperties.STAPLES_FA_MESSAGE_PREFIX + todayNow + "_" + Integer.toString(outputs.size()) +".xml";
+				StreamResult result = new StreamResult(new File(filePath));
 				transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
 				transformer.setOutputProperty(OutputKeys.INDENT, "yes");
 				transformer.transform(source, result);
@@ -260,8 +259,8 @@ public class XmlParserUtil {
 						"yes");*/
 				StringWriter writer = new StringWriter();
 				transformer.transform(new DOMSource(doc), new StreamResult(writer));
-				String output = writer.getBuffer().toString();
-				outputs.add(output);
+				//String output = writer.getBuffer().toString();
+				outputs.add(filePath);
 				logger.info("FA message has been created properly.");
 				// logger.info(output);
 			} /*catch (ParserConfigurationException pce) {
@@ -282,9 +281,7 @@ public class XmlParserUtil {
 		}
 		return outputs;
 	}
-	public static String convertSalesOrderListToConfirmationMessage(List<SalesOrder> soList) throws ParserConfigurationException, TransformerException{
-		
-		String output = "";
+	public static String convertSalesOrderListToConfirmationMessage(List<SalesOrder> soList) throws ParserConfigurationException, TransformerException{		
 		GlobalProperties properties =  GlobalPropertiesProvider.getGlobalProperties();
 		
 		DocumentBuilderFactory docFactory = DocumentBuilderFactory
@@ -466,8 +463,8 @@ public class XmlParserUtil {
 
 
 		String todayNow = new SimpleDateFormat(GlobalProperties.SPECIAL_FILE_NAME_DATE_FORMAT).format(new Date());
-		StreamResult result = new StreamResult(new File(
-				properties.getConfirmationDecryptedPath() + GlobalProperties.STAPLES_CONFIRM_MESSAGE_PREFIX +  todayNow + "_" + ".xml"));
+		String filePath = properties.getConfirmationDecryptedPath() + GlobalProperties.STAPLES_CONFIRM_MESSAGE_PREFIX +  todayNow + "_" + ".xml";
+		StreamResult result = new StreamResult(new File(filePath));
 		
 		/*transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION,
 				"yes");*/
@@ -477,15 +474,14 @@ public class XmlParserUtil {
 
 		StringWriter writer = new StringWriter();
 		transformer.transform(new DOMSource(doc), new StreamResult(writer));
-		output = writer.getBuffer().toString();
+		//output = writer.getBuffer().toString();
 
 		logger.info("Confirmation message has been created properly.");
 		
-		return output;
+		return filePath;
 	}
 	public static String convertSalesOrderListToOrderInvoicesMessage(List<SalesOrder> soList, Map<String, String> itemInternalIdToItemNumberMap, Map<String, CustomerShppingAddressPojo> salesOrderIdToShippingAddressMap ) throws ParserConfigurationException, TransformerException{
-		String output = "";
-		
+				
 		GlobalProperties properties =  GlobalPropertiesProvider.getGlobalProperties();
 		PersistenceManager manager = new PersistenceManager();
 		
@@ -761,8 +757,8 @@ public class XmlParserUtil {
 
 
 		String todayNow = new SimpleDateFormat(GlobalProperties.SPECIAL_FILE_NAME_DATE_FORMAT).format(new Date());
-		StreamResult result = new StreamResult(new File(
-				properties.getInvoiceDecryptedPath() + GlobalProperties.STAPLES_INVOICE_MESSAGE_PREFIX +  todayNow + "_" + ".xml"));
+		String messagePath = properties.getInvoiceDecryptedPath() + GlobalProperties.STAPLES_INVOICE_MESSAGE_PREFIX +  todayNow + "_" + ".xml";
+		StreamResult result = new StreamResult(new File(messagePath));
 		
 		/*transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION,
 				"yes");*/
@@ -772,10 +768,7 @@ public class XmlParserUtil {
 
 		StringWriter writer = new StringWriter();
 		transformer.transform(new DOMSource(doc), new StreamResult(writer));
-		output = writer.getBuffer().toString();
-
 		logger.info("Order Invoices message has been created properly.");
-
-		return output;
+		return messagePath;
 	}
 }

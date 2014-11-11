@@ -19,7 +19,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.malkos.poppin.bootstrap.GlobalProperties;
 import com.malkos.poppin.bootstrap.GlobalPropertiesProvider;
-import com.malkos.poppin.encryption.EncryptionManager;
 import com.malkos.poppin.entities.CHIntegrationError;
 import com.malkos.poppin.entities.MessageType;
 import com.malkos.poppin.entities.OutgoingMessageStatus;
@@ -39,10 +38,8 @@ public class ShippingConfirmationFlowService implements IShippingConfirmationFlo
 	private INetsuiteOperationsManager netsuiteOperationsManager;
 	
 	@Autowired
-	IPersistenceManager persistanceManager;	
-	
-	private EncryptionManager encManager; 
-	
+	IPersistenceManager persistanceManager;		
+		
 	@Override
 	public void processShippingConfirmations() {
 		String shippingConfirmation = retrieveShippingConfirmationsFromPoppin();
@@ -110,34 +107,16 @@ public class ShippingConfirmationFlowService implements IShippingConfirmationFlo
 
 	private List<OutgoingMessageDAO> saveShippingConfirmations(String confirmationXml) {
 		logger.info("Saving confirmation messages ");
-		List<OutgoingMessageDAO> messageList = new ArrayList<>();
-		GlobalProperties properties = GlobalPropertiesProvider.getGlobalProperties();
-		//String pathTempFile = "xmlsource/encrypted/confirm.pgp";
-		String todayNow = new SimpleDateFormat(properties.SPECIAL_FILE_NAME_DATE_FORMAT).format(new Date());
-		String pathTempFile = properties.STAPLES_CONFIRM_MESSAGE_PREFIX + todayNow +  ".pgp";
-
-		// 1. Encrypt the file with EncryptionManager with CommerceHub
-		// public
-		// key
-		logger.info("1. Encrypt the file with EncryptionManager.");
-		try {
-			encManager = new EncryptionManager();
-			byte[] encrypted = encManager.encrypt(new ByteArrayInputStream(
-					confirmationXml.getBytes()));
-			String messagePath = properties.getConfirmationEncryptedPath() +  pathTempFile;
-			FileOutputStream str = new FileOutputStream(messagePath);
-			IOUtils.write(encrypted, str);
-			str.close();
+		List<OutgoingMessageDAO> messageList = new ArrayList<>();		
+		try {		
 			OutgoingMessageDAO omDAO = new OutgoingMessageDAO();
-			omDAO.setMessagePath(messagePath);
+			omDAO.setMessagePath(confirmationXml);
 			omDAO.setMessageStatus(OutgoingMessageStatus.PENDING_FOR_SENDING);
 			omDAO.setMessageType(MessageType.SHIPPING_CONFIRMATION);
-			messageList.add(omDAO);
-			logger.info(str.toString());
+			messageList.add(omDAO);		
 		} catch (Exception ex) {
 			String errorMessage = ex.getMessage();
-			logger.info(errorMessage);
-			//ErrorsCollector.addCommonErrorMessage(errorMessage);
+			logger.info(errorMessage);			
 			ErrorsCollector.addCommonErrorMessage(new CHIntegrationError(errorMessage));
 		}
 		return messageList;

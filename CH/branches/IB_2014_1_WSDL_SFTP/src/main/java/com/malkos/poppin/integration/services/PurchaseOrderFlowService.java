@@ -2,6 +2,7 @@ package com.malkos.poppin.integration.services;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -19,7 +20,6 @@ import java.util.Map.Entry;
 
 import org.apache.axis.AxisFault;
 import org.apache.commons.io.IOUtils;
-import org.bouncycastle.openpgp.PGPException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,7 +28,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.malkos.poppin.bootstrap.GlobalProperties;
 import com.malkos.poppin.bootstrap.GlobalPropertiesProvider;
 import com.malkos.poppin.bootstrap.IntegrationBootStraper;
-import com.malkos.poppin.encryption.EncryptionManager;
 import com.malkos.poppin.entities.CHIntegrationError;
 import com.malkos.poppin.entities.IncomingMessageStatus;
 import com.malkos.poppin.entities.MessageBatchTransfer;
@@ -68,15 +67,13 @@ public class PurchaseOrderFlowService implements IPurchaseOrderFlowService {
 	private INetsuiteOperationsManager netsuiteOperationsManager;
 	
 	@Autowired
-	IPersistenceManager persistanceManager;	
+	IPersistenceManager persistanceManager;		
 	
-	private EncryptionManager encManager; 
 
 	private OrderProcessingStep processingStep;
 	
 	@Override
-	public void processNewPurchaseOrders() {
-		encManager = new EncryptionManager();
+	public void processNewPurchaseOrders() {		
 		List<PurchaseOrderPojo> generalOrderList = new ArrayList<>();
 		List<PurchaseOrderPojo> ordersToSendList = new ArrayList<>();
 		
@@ -123,32 +120,22 @@ public class PurchaseOrderFlowService implements IPurchaseOrderFlowService {
 		persistanceManager.persistOutgoingMessages(faMessagesDAOList);
 	}
 	
-	private List<OutgoingMessageDAO> saveFunctionalAcknowledgments(List<String> faXmls) {
-		GlobalProperties properties = GlobalPropertiesProvider.getGlobalProperties();
+	private List<OutgoingMessageDAO> saveFunctionalAcknowledgments(List<String> faXmls) {		
 		List<OutgoingMessageDAO> messagesList = new ArrayList<>();
 		if(faXmls.isEmpty() == false){
 			int faCounter = 0;			
 			logger.info("There is/are " + faXmls.size() + " fa files to send to Staples.");
-			for (String faXml : faXmls) {	
-				String todayNow = new SimpleDateFormat(properties.SPECIAL_FILE_NAME_DATE_FORMAT).format(new Date());
-				String pathTempFile = properties.STAPLES_FA_MESSAGE_PREFIX + todayNow + "_" + faCounter + ".pgp";					
+			for (String faXml : faXmls) {									
 				logger.info("1. Encrypt the files with EncryptionManager");
-				try {
-					byte[] encrypted = encManager.encrypt(new ByteArrayInputStream(
-							faXml.getBytes()));
-					String filePath  = properties.getFuncAckEncryptedPath() + pathTempFile;
-					FileOutputStream str = new FileOutputStream(filePath);	
-					IOUtils.write(encrypted, str);
-					str.close();
+				try {					
 					OutgoingMessageDAO omDAO = new OutgoingMessageDAO();
-					omDAO.setMessagePath(filePath);
+					omDAO.setMessagePath(faXml);
 					omDAO.setMessageStatus(OutgoingMessageStatus.PENDING_FOR_SENDING);
 					omDAO.setMessageType(MessageType.FUNCTIONAL_ACKNOWLEDGEMENT);
 					messagesList.add(omDAO);
 				} catch (Exception ex) {
 					String errorMessage = ex.getMessage();
-					logger.info(errorMessage);
-					//ErrorsCollector.addCommonErrorMessage(errorMessage);
+					logger.info(errorMessage);					
 					ErrorsCollector.addCommonErrorMessage(new CHIntegrationError(errorMessage));
 				}
 				faCounter++;
@@ -328,7 +315,7 @@ public class PurchaseOrderFlowService implements IPurchaseOrderFlowService {
 			String path = messageDAO.getMessagePath();
 			try {
 				BufferedInputStream fileStream = new BufferedInputStream(new FileInputStream(path));				
-				MessageBatchTransfer mbTransfer = decryptSaveAndParseFile(path,fileStream);
+				MessageBatchTransfer mbTransfer = parseFile(path,fileStream);
 				if (mbTransfer!= null ){
 					mbTransfer.setIdIncomingMessage(messageDAO.getIdIncomingMessages());
 					for (PurchaseOrderPojo poPojo : mbTransfer.getPurchaseOrders()){
@@ -340,7 +327,7 @@ public class PurchaseOrderFlowService implements IPurchaseOrderFlowService {
 				logger.warn("Can't find incoming message = "+path+". It will be skiped");
 				//ErrorsCollector.addCommonErrorMessage("Couldn't find purchase order file = "+path+".Reason: "+e.getMessage());
 				ErrorsCollector.addCommonErrorMessage(new CHIntegrationError("Couldn't find purchase order file = "+path+".Reason: "+e.getMessage()));
-			} catch (NoSuchProviderException | IOException | PGPException ex){
+			} catch (NoSuchProviderException | IOException ex){
 				String errorMessage = "Failed to decrypt the stream provided for file: "+ path + ". Reason : " + ex.getMessage();
 				logger.warn(errorMessage);
 				if (logger.isDebugEnabled())
@@ -364,29 +351,18 @@ public class PurchaseOrderFlowService implements IPurchaseOrderFlowService {
 		return result;
 	}
 	
-	private MessageBatchTransfer decryptSaveAndParseFile(String path ,BufferedInputStream fileStream) throws NoSuchProviderException, IOException, PGPException, PoParsingException{		
-		logger.info("Starting to decrypt the file "	+ path);
-		String correctedPath = path.replace((CharSequence)(new String("encrypted")), (CharSequence)(new String("decrypted")));
-		String decryptedPath = correctedPath.substring(0, correctedPath.length()-3)+"xml";
-		byte[] decrypted = null;
-		decrypted = encManager.decrypt(fileStream);	
-		logger.info("Saving file "+decryptedPath+" to local storage");
-		FileOutputStream fsOut = new FileOutputStream(decryptedPath);
-		InputStream fsIn = new ByteArrayInputStream(decrypted);
-		IOUtils.copy(fsIn,fsOut);
-		fsOut.close();
-		fsIn.close();
-		InputStream streamToParse = new ByteArrayInputStream(decrypted);
+	private MessageBatchTransfer parseFile(String path ,BufferedInputStream fileStream) throws NoSuchProviderException, IOException, PoParsingException{		
+		InputStream streamToParse = new FileInputStream(new File(path));
 		MessageBatchTransfer mbTransfer = null;
 		try {
 			mbTransfer = XmlParserUtil.convertXmlStringToPurchaseOrderPojo(streamToParse);
-			mbTransfer.setDecryptedFilePath(decryptedPath);
-			mbTransfer.setEncryptedFilePath(path);
+			mbTransfer.setDecryptedFilePath(path);
+			mbTransfer.setEncryptedFilePath("");
 			for (PurchaseOrderPojo poPojo:mbTransfer.getPurchaseOrders()){				
-				poPojo.setOrderBatchPath(decryptedPath);
+				poPojo.setOrderBatchPath(path);
 			}
 		} catch (Exception e) {
-			String errorMessage = "Failed to parse the stream provided for file: " + decryptedPath + ". Reason : " + e.getMessage();			
+			String errorMessage = "Failed to parse the stream provided for file: " + path + ". Reason : " + e.getMessage();			
 			throw new PoParsingException(errorMessage);		
 		}
 		return mbTransfer;

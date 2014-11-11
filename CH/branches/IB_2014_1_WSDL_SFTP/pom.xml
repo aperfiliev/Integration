@@ -59,18 +59,13 @@
 		<version>3.2</version>
 	</dependency>
 	<!-- apache commons -->
-	<!-- bouncy castle -->
-	 <dependency>
-		<groupId>org.bouncycastle</groupId>
-		<artifactId>bcprov-jdk15on</artifactId>
-		<version>1.49</version>
-	</dependency>
+    <!-- SFTP -->
 	<dependency>
-		<groupId>org.bouncycastle</groupId>
-		<artifactId>bcpg-jdk15on</artifactId>
-		<version>1.49</version>
+		<groupId>com.jcraft</groupId>
+		<artifactId>jsch</artifactId>
+		<version>0.1.50</version>
 	</dependency>
-	    <!-- bouncy castle -->
+	<!-- SFTP -->
 	<dependency>
 		<groupId>commons-io</groupId>
 		<artifactId>commons-io</artifactId>

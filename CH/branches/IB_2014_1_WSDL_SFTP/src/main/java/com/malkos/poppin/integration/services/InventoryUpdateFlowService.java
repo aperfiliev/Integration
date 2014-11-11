@@ -31,7 +31,6 @@ import org.w3c.dom.Element;
 
 import com.malkos.poppin.bootstrap.GlobalProperties;
 import com.malkos.poppin.bootstrap.GlobalPropertiesProvider;
-import com.malkos.poppin.encryption.EncryptionManager;
 import com.malkos.poppin.entities.CHIntegrationError;
 import com.malkos.poppin.entities.InventoryPojo;
 import com.malkos.poppin.entities.MessageType;
@@ -51,7 +50,7 @@ public class InventoryUpdateFlowService implements IInventoryUpdateFlowService {
 	@Autowired
 	IPersistenceManager persistanceManager;	
 	
-	private EncryptionManager encManager; 
+	//private EncryptionManager encManager; 
 	
 
 	@Override
@@ -97,7 +96,9 @@ public class InventoryUpdateFlowService implements IInventoryUpdateFlowService {
 			CHIntegrationError wrappedError =  ErrorMessageWrapper.wrapCommonError(ex.getMessage());
 			ErrorsCollector.addCommonErrorMessage(wrappedError);
 		}
-
+		
+		String messagePath=null;
+		
 		if (!records.isEmpty()) {
 			try {
 
@@ -224,12 +225,11 @@ public class InventoryUpdateFlowService implements IInventoryUpdateFlowService {
 				// create file
 				DOMSource source = new DOMSource(doc);
 
-				
+				messagePath = properties.getInventoryDecryptedPath()
+						+ GlobalProperties.STAPLES_INVENTORY_MESSAGE_PREFIX
+						+ todayNow + ".xml";
 				StreamResult result = new StreamResult(
-						new File(
-								properties.getInventoryDecryptedPath()
-										+ GlobalProperties.STAPLES_INVENTORY_MESSAGE_PREFIX
-										+ todayNow + ".xml"));
+						new File(messagePath));
 
 				/*
 				 * transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION,
@@ -242,9 +242,7 @@ public class InventoryUpdateFlowService implements IInventoryUpdateFlowService {
 				
 				StringWriter writer = new StringWriter();
 				transformer.transform(new DOMSource(doc), new StreamResult(
-						writer));
-				output = writer.getBuffer().toString();
-
+						writer));							
 				logger.info("Inventory message has created properly.");
 
 			} catch (ParserConfigurationException pce) {
@@ -262,45 +260,16 @@ public class InventoryUpdateFlowService implements IInventoryUpdateFlowService {
 				ErrorsCollector.addCommonErrorMessage(new CHIntegrationError(errorMessage));
 			}
 		}
-		return output;
+		return messagePath;
 	}
 	
-	public List<OutgoingMessageDAO> saveInventory(String inventories) {
+	public List<OutgoingMessageDAO> saveInventory(String path) {
 		logger.info("Saving inventory messages.");
 		List<OutgoingMessageDAO> messageList = new ArrayList<>();
-		GlobalProperties properties = GlobalPropertiesProvider.getGlobalProperties();
-		String todayNow = new SimpleDateFormat(
-				properties.SPECIAL_FILE_NAME_DATE_FORMAT)
-				.format(new Date());
-		String pathTempFile = properties.STAPLES_INVENTORY_MESSAGE_PREFIX
-				+ todayNow + ".PGP";
-
-		// 1. Encrypt the file with EncryptionManager with CommerceHub
-		// public
-		// key
-		logger.info("1. Encrypt the file with EncryptionManager");
-		try {
-			encManager = new EncryptionManager();
-			byte[] encrypted = encManager.encrypt(new ByteArrayInputStream(
-					inventories.getBytes()));
-			String messagePath = properties.getInventoryEncryptedPath() + pathTempFile;
-			FileOutputStream str = new FileOutputStream(messagePath);
-
-			IOUtils.write(encrypted, str);
-			logger.info(str.toString());
-			str.close();
-			OutgoingMessageDAO omDAo = new OutgoingMessageDAO();
-			omDAo.setMessagePath(messagePath);
-			omDAo.setMessageStatus(OutgoingMessageStatus.PENDING_FOR_SENDING);
-			omDAo.setMessageType(MessageType.INVENTORY_UPDATE);
-			messageList.add(omDAo);
-		} catch (Exception ex) {
-			String errorMessage = "Error with Encrypt the file with EncryptionManager with CommerceHub. Reason: "
-					+ ex.getMessage();
-			logger.info(errorMessage);
-			//ErrorsCollector.addCommonErrorMessage(errorMessage);
-			ErrorsCollector.addCommonErrorMessage(new CHIntegrationError(errorMessage));
-		}
+		OutgoingMessageDAO omDAo = new OutgoingMessageDAO();
+		omDAo.setMessagePath(path);
+		omDAo.setMessageStatus(OutgoingMessageStatus.PENDING_FOR_SENDING);
+		omDAo.setMessageType(MessageType.INVENTORY_UPDATE);	
 		return messageList;
 	}
 

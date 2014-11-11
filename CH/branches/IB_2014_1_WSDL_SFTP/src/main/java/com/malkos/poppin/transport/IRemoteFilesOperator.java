@@ -8,9 +8,7 @@ import java.util.Set;
 import com.malkos.poppin.persistence.dao.OutgoingMessageDAO;
 
 public interface IRemoteFilesOperator {
-	List<OutgoingMessageDAO> pushFilesToFilesStorage(List<OutgoingMessageDAO> outgoingMessages);
-
 	Map<String, ByteArrayInputStream> pullFilesFromFileStorage();
-
-	Set<String> saveFilesToLocalFileSystem(Map<String, ByteArrayInputStream> fileNameToFileStreamMap);
+	//Set<String> saveFilesToLocalFileSystem(Map<String, ByteArrayInputStream> incomingPoFileNameToStreamMap);
+	List<OutgoingMessageDAO> pushFilesToFilesStorage(List<OutgoingMessageDAO> outgoingMessages);
 }
