@@ -1227,15 +1227,16 @@ public class NetsuiteOperationsManager implements INetsuiteOperationsManager {
 								if (taxAmountColumn[0].getSearchValue()>0){
 									iiPojo.setTaxAmount(taxAmountColumn[0].getSearchValue());
 								}
+							}								
+							if (tsBiling.getCustomFieldList()!=null){
+								for(SearchColumnCustomField sccf :  tsBiling.getCustomFieldList().getCustomField()){
+									SearchColumnStringCustomField scsFielf = (SearchColumnStringCustomField)sccf;									
+									if(scsFielf.getScriptId().equalsIgnoreCase("custcolmerchant_sku"))
+										iiPojo.setMerchantSKU(scsFielf.getSearchValue());
+									else if(scsFielf.getScriptId().equalsIgnoreCase("custcol11"))
+										iiPojo.setVendorlineNumber(scsFielf.getSearchValue());								
+								}
 							}							
-							for(SearchColumnCustomField sccf :  tsBiling.getCustomFieldList().getCustomField()){
-								SearchColumnStringCustomField scsFielf = (SearchColumnStringCustomField)sccf;
-								
-								if(scsFielf.getScriptId().equalsIgnoreCase("custcolmerchant_sku"))
-									iiPojo.setMerchantSKU(scsFielf.getSearchValue());
-								else if(scsFielf.getScriptId().equalsIgnoreCase("custcol11"))
-									iiPojo.setVendorlineNumber(scsFielf.getSearchValue());								
-							}
 							itemList.add(iiPojo);
 						}						
 					}
