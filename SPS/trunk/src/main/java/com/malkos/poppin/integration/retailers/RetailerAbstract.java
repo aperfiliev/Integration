@@ -25,7 +25,7 @@ import com.malkos.poppin.util.ErrorsCollector;
 import com.malkos.poppin.util.xml.generators.IXmlMessagesGenerator;
 import com.malkos.poppin.util.xml.generators.impl.XmlMessageGenerationException;
 import com.malkos.poppin.validation.IValidator;
-import com.netsuite.webservices.transactions.sales_2013_1.types.SalesOrderOrderStatus;
+import com.netsuite.webservices.transactions.sales_2014_1.types.SalesOrderOrderStatus;
 
 public abstract class RetailerAbstract {
 	

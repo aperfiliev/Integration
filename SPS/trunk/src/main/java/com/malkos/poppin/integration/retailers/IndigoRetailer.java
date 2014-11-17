@@ -23,7 +23,7 @@ import com.malkos.poppin.util.ErrorMessageWrapper;
 import com.malkos.poppin.util.ErrorsCollector;
 import com.malkos.poppin.util.xml.generators.impl.IndigoBulkImportMessageGenerator;
 import com.malkos.poppin.validation.IndigoBulkImportValidator;
-import com.netsuite.webservices.transactions.sales_2013_1.types.SalesOrderOrderStatus;
+import com.netsuite.webservices.transactions.sales_2014_1.types.SalesOrderOrderStatus;
 
 public class IndigoRetailer extends RetailerAbstract {
 

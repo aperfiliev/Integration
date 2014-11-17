@@ -106,7 +106,7 @@ public class OrderErrorMessage {
 			if (GlobalPropertiesProvider.getGlobalProperties().getEnvironment().equals("sandbox")){
 				result = "https://system.sandbox.netsuite.com/app/accounting/transactions/salesord.nl?id="+orderId;
 			} else {
-				result = "https://system.sandbox.netsuite.com/app/accounting/transactions/salesord.nl?id="+orderId;
+				result = "https://system.netsuite.com/app/accounting/transactions/salesord.nl?id="+orderId;
 			}
 			return result;
 		}
