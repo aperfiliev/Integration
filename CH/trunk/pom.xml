@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>com.malkos.poppin.integration</groupId>
-  <artifactId>Poppin_Staples_Integration</artifactId>
+  <artifactId>Poppin_Staples_Integration_2014_1</artifactId>
   <version>1</version>
   <packaging>jar</packaging>
 
@@ -83,21 +83,16 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-			<groupId>com.netsuite</groupId>
-			<artifactId>axis</artifactId>
-			<version>1.4</version>
-		</dependency>
-		<dependency>
-			<groupId>com.netsuite</groupId>
-			<artifactId>netsuite_client_2012_1</artifactId>
-			<version>2012.1.1</version>
-		</dependency>
-		<dependency>
-			<groupId>com.erpguru</groupId>
-			<artifactId>NetSuiteClient2012_1</artifactId>
-			<version>1.4</version>
-		</dependency>
-	 <dependency>
+		<groupId>com.netsuite</groupId>
+		<artifactId>axis</artifactId>
+		<version>1.4</version>
+	</dependency>
+	<dependency>
+		<groupId>com.netsuite.netsuite_client_2014_1</groupId>
+		<artifactId>nsclient</artifactId>
+		<version>2014_1</version>
+    </dependency>		
+	<dependency>
 		<groupId>org.apache.axis</groupId>
 		<artifactId>axis-jaxrpc</artifactId>
 		<version>1.4</version>
@@ -132,14 +127,7 @@
 			<artifactId>mail</artifactId>
 			<version>1.4.5</version>
 		</dependency>
-   </dependencies>
-   <repositories>
-		<repository>
-			<id>ERPGuru Maven</id>
-			<name>ERPGuru Maven-releases</name>
-			<url>http://talend.erpguru.com:8081/artifactory/libs-release-local</url>
-		</repository>
-	</repositories>
+   </dependencies>  
 	<build>
 		<plugins>
 			<plugin>

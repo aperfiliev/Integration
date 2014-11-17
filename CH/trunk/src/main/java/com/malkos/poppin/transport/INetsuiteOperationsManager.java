@@ -10,10 +10,9 @@ import com.malkos.poppin.entities.PurchaseOrderPojo;
 import com.malkos.poppin.entities.UnprocessibleOrdersType;
 import com.malkos.poppin.persistence.dao.PurchaseOrderDAO;
 import com.malkos.poppin.persistence.dao.VendorSkuToModelNumMapDAO;
-import com.netsuite.webservices.lists.relationships_2012_1.CustomerAddressbook;
-import com.netsuite.webservices.platform.core_2012_1.Record;
-import com.netsuite.webservices.transactions.sales_2012_1.SalesOrder;
-import com.netsuite.webservices.lists.accounting_2012_1.InventoryItem;
+import com.netsuite.webservices.lists.accounting_2014_1.InventoryItem;
+import com.netsuite.webservices.transactions.sales_2014_1.SalesOrder;
+
 
 public interface INetsuiteOperationsManager {
 	//public String addCustomer(PurchaseOrderPojo po) throws NetsuiteAddRowException;

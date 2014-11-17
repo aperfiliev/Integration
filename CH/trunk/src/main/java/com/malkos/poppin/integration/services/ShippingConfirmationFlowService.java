@@ -31,7 +31,7 @@ import com.malkos.poppin.transport.NetsuiteOperationException;
 import com.malkos.poppin.utils.ErrorMessageWrapper;
 import com.malkos.poppin.utils.ErrorsCollector;
 import com.malkos.poppin.utils.XmlParserUtil;
-import com.netsuite.webservices.transactions.sales_2012_1.SalesOrder;
+import com.netsuite.webservices.transactions.sales_2014_1.SalesOrder;
 
 public class ShippingConfirmationFlowService implements IShippingConfirmationFlowService{
 	public static final Logger logger = LoggerFactory.getLogger(ShippingConfirmationFlowService.class);

@@ -39,14 +39,14 @@ import com.malkos.poppin.entities.MessageBatchTransfer;
 import com.malkos.poppin.entities.PurchaseOrderPojo;
 import com.malkos.poppin.entities.PurchaseOrderStatus;
 import com.malkos.poppin.persistence.PersistenceManager;
-import com.netsuite.webservices.platform.common_2012_1.InventoryDetail;
-import com.netsuite.webservices.platform.core_2012_1.CustomFieldList;
-import com.netsuite.webservices.platform.core_2012_1.CustomFieldRef;
-import com.netsuite.webservices.platform.core_2012_1.RecordRef;
-import com.netsuite.webservices.platform.core_2012_1.StringCustomFieldRef;
-import com.netsuite.webservices.transactions.sales_2012_1.SalesOrder;
-import com.netsuite.webservices.transactions.sales_2012_1.SalesOrderItem;
-import com.netsuite.webservices.transactions.sales_2012_1.SalesOrderItemList;
+import com.netsuite.webservices.platform.common_2014_1.InventoryDetail;
+import com.netsuite.webservices.platform.core_2014_1.CustomFieldList;
+import com.netsuite.webservices.platform.core_2014_1.CustomFieldRef;
+import com.netsuite.webservices.platform.core_2014_1.RecordRef;
+import com.netsuite.webservices.platform.core_2014_1.StringCustomFieldRef;
+import com.netsuite.webservices.transactions.sales_2014_1.SalesOrder;
+import com.netsuite.webservices.transactions.sales_2014_1.SalesOrderItem;
+import com.netsuite.webservices.transactions.sales_2014_1.SalesOrderItemList;
 
 public class XmlParserUtil {
 	private static Logger logger = LoggerFactory.getLogger(XmlParserUtil.class);
@@ -319,7 +319,7 @@ public class XmlParserUtil {
 			for(CustomFieldRef cRef : ref1){
 				if(cRef.getClass() == StringCustomFieldRef.class){
 					stringCustomRef1 = (StringCustomFieldRef)cRef;
-					if(stringCustomRef1.getInternalId().equalsIgnoreCase("custbody14"))
+					if(stringCustomRef1.getScriptId().equalsIgnoreCase("custbody14"))
 						partnerTrxIDStr = stringCustomRef1.getValue();
 					break;
 				}
@@ -384,7 +384,7 @@ public class XmlParserUtil {
 				for(CustomFieldRef cRef : ref){
 					if(cRef.getClass() == StringCustomFieldRef.class){
 						stringCustomRef = (StringCustomFieldRef)cRef;
-						if(stringCustomRef.getInternalId().equalsIgnoreCase("custcol11"))
+						if(stringCustomRef.getScriptId().equalsIgnoreCase("custcol11"))
 							merchantLineNumberStr = stringCustomRef.getValue();
 						break;
 					}
@@ -602,7 +602,7 @@ public class XmlParserUtil {
 			for(CustomFieldRef cRef : customFieldRef){
 				if(null!= cRef && cRef.getClass() == StringCustomFieldRef.class){
 					stringCustomFieldRef = (StringCustomFieldRef)cRef;
-					String customFieldInternalId = stringCustomFieldRef.getInternalId();
+					String customFieldInternalId = stringCustomFieldRef.getScriptId();
 					if(customFieldInternalId.equalsIgnoreCase("custbodypartner_person_place_id")){
 						partnerPersonPlaceIdstr = stringCustomFieldRef.getValue();
 						break;
@@ -622,7 +622,7 @@ public class XmlParserUtil {
 				for(CustomFieldRef cRef : ref){
 					if(null != cRef && cRef.getClass() == StringCustomFieldRef.class){
 						stringCustomRef = (StringCustomFieldRef)cRef;
-						String customFieldInternalId = stringCustomRef.getInternalId();
+						String customFieldInternalId = stringCustomRef.getScriptId();
 						if(customFieldInternalId.equalsIgnoreCase("custcol11"))
 							merchantLineNumberStr = stringCustomRef.getValue();
 						else if(customFieldInternalId.equalsIgnoreCase("custcolmerchant_sku"))
