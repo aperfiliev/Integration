@@ -68,6 +68,7 @@ import com.netsuite.webservices.platform.common_2014_1.LocationSearchBasic;
 import com.netsuite.webservices.platform.common_2014_1.TransactionSearchBasic;
 import com.netsuite.webservices.platform.common_2014_1.TransactionSearchRowBasic;
 import com.netsuite.webservices.platform.common_2014_1.types.Country;
+import com.netsuite.webservices.platform.common_2014_1.types.GlobalSubscriptionStatus;
 import com.netsuite.webservices.platform.core_2014_1.BooleanCustomFieldRef;
 import com.netsuite.webservices.platform.core_2014_1.CustomFieldList;
 import com.netsuite.webservices.platform.core_2014_1.CustomFieldRef;
@@ -502,7 +503,8 @@ public class NetsuiteOperationsManager implements INetsuiteOperationsManager {
 			index++;
 		}
 		addressbookList.setAddressbook(addressbook);
-		cust.setAddressbookList(addressbookList);		
+		cust.setAddressbookList(addressbookList);	
+		cust.setGlobalSubscriptionStatus(GlobalSubscriptionStatus._softOptOut);
 		return cust;
 	}
 
