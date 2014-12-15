@@ -92,7 +92,7 @@ public class FilesStorageService implements IFilesStorageService{
 		//2
 		if (!outgoingMessages.isEmpty()){
 			try{
-				logger.info("Sending ourgoing messages to send them to SPS.");
+				logger.info("Sending ourgoing messages to send them to CH.");
 				List<OutgoingMessageDAO> sentMessages = filesOperator.pushFilesToFilesStorage(outgoingMessages);
 				//3
 				logger.info("Updating DB. Setting outgoing messages status as SENT for just sent messages.");

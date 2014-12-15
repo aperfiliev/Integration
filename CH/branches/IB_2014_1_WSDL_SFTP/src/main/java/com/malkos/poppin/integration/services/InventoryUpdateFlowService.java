@@ -270,6 +270,7 @@ public class InventoryUpdateFlowService implements IInventoryUpdateFlowService {
 		omDAo.setMessagePath(path);
 		omDAo.setMessageStatus(OutgoingMessageStatus.PENDING_FOR_SENDING);
 		omDAo.setMessageType(MessageType.INVENTORY_UPDATE);	
+		messageList.add(omDAo);
 		return messageList;
 	}
 

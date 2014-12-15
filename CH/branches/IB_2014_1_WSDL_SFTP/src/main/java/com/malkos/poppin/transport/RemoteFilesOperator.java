@@ -44,7 +44,7 @@ public class RemoteFilesOperator implements IRemoteFilesOperator{
 	public Map<String, ByteArrayInputStream> pullFilesFromFileStorage() {
 		Map<String, ByteArrayInputStream> incomingFilesStreamList = new HashMap<String, ByteArrayInputStream>();
 		try {
-			logger.info("Opening connection with SPS.");
+			logger.info("Opening connection with CH.");
 			remoteFileManager.openSession();
 			remoteFileManager.setWorkingDirectory(globalProperties.getFtpStoragePurchaseOrdersPath() + "/");
 			List<String> fileList = remoteFileManager.getDirectoryFilesNames();
