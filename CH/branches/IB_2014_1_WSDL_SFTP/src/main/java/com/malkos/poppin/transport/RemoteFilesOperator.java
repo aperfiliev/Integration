@@ -62,7 +62,7 @@ public class RemoteFilesOperator implements IRemoteFilesOperator{
 					logger.error(errorMessage);
 					CHIntegrationError error = new CHIntegrationError();
 					error.setErrorMessage(errorMessage);
-					ErrorsCollector.addCommonErrorMessage(error);
+					ErrorsCollector.addCommonRemoteFileOperatorErrorMessage(error);
 				}
 				finally{
 					incomingFileStream.close();
@@ -73,7 +73,7 @@ public class RemoteFilesOperator implements IRemoteFilesOperator{
 			String errorMessage = "Could not retrieve files from remote file manager. Reason: " + e.getMessage();
 			logger.warn(errorMessage);			
 			CHIntegrationError error = ErrorMessageWrapper.wrapCommonError(errorMessage, null);			
-			ErrorsCollector.addCommonErrorMessage(error);
+			ErrorsCollector.addCommonRemoteFileOperatorErrorMessage(error);
 		}
 		finally{
 			try {
@@ -83,7 +83,7 @@ public class RemoteFilesOperator implements IRemoteFilesOperator{
 				logger.warn(errorMessage);
 				CHIntegrationError error = new CHIntegrationError();
 				error.setErrorMessage(errorMessage);
-				ErrorsCollector.addCommonErrorMessage(error);
+				ErrorsCollector.addCommonRemoteFileOperatorErrorMessage(error);
 			}
 		}
 		return incomingFilesStreamList;
@@ -157,7 +157,7 @@ public class RemoteFilesOperator implements IRemoteFilesOperator{
 					String errorMessage = "Could not send " + fileToSend.getPath() + " to CH. Reason :" + e.getMessage();
 					CHIntegrationError error = new CHIntegrationError();
 					error.setErrorMessage(errorMessage);
-					ErrorsCollector.addCommonErrorMessage(error);
+					ErrorsCollector.addCommonRemoteFileOperatorErrorMessage(error);
 				}
 				finally{
 					if(null != streamToSend)
@@ -169,7 +169,7 @@ public class RemoteFilesOperator implements IRemoteFilesOperator{
 			String errorMessage = "Could not send outgoing messages to CH. Reason :" + e.getMessage();
 			logger.warn(errorMessage);			 
 			CHIntegrationError error = ErrorMessageWrapper.wrapCommonError(errorMessage,null);			
-			ErrorsCollector.addCommonErrorMessage(error);			
+			ErrorsCollector.addCommonRemoteFileOperatorErrorMessage(error);			
 		}
 		finally{
 			try {
@@ -179,7 +179,7 @@ public class RemoteFilesOperator implements IRemoteFilesOperator{
 				logger.warn(errorMessage);
 				CHIntegrationError error = new CHIntegrationError();
 				error.setErrorMessage(errorMessage);
-				ErrorsCollector.addCommonErrorMessage(error);
+				ErrorsCollector.addCommonRemoteFileOperatorErrorMessage(error);
 			}
 		}
 		return sentMessagessIdList;
